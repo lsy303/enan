@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>عِنان | إسطبلك بيدك</title>
 <meta name="theme-color" content="#0F1F33">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="عِنان">
+<meta name="application-name" content="عِنان">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -279,6 +287,8 @@
   .suhub-dev img{display:inline-block; vertical-align:middle; height:22px; width:auto;}
   .suhub-dev a{color:#3FA3E8; font-weight:700; text-decoration:none;}
   @media print{ .suhub-dev{display:none !important;} }
+  body.installed .install-only{display:none !important;}
+  @media (display-mode: standalone){ .status-banner{padding-top:max(10px, env(safe-area-inset-top));} }
 
 </style>
 </head>
@@ -306,6 +316,7 @@
       <button class="gate-link" type="button" onclick="showGate('gateRegister')">ليس لديك حساب؟ سجّل إسطبلك</button>
       <button class="gate-link" type="button" onclick="window.EnanAPI && EnanAPI.resetPassword();">نسيت كلمة المرور</button>
       <a class="gate-link" href="?demo">جرّب النسخة التجريبية</a>
+      <button class="gate-link install-only" type="button" onclick="installApp()">📲 ثبّت التطبيق على جهازك</button>
     </form>
 
     <form id="gateRegister" class="gate-view" onsubmit="event.preventDefault(); window.EnanAPI && EnanAPI.register();">
@@ -365,6 +376,7 @@
           <button class="menu-item owner-only live-only" onclick="closeToolsMenu(); openSettingsModal();">⚙️ إعدادات الإسطبل</button>
           <button class="menu-item owner-only live-only rw-only" onclick="closeToolsMenu(); openStaffModal();">👥 الموظفون</button>
           <a class="menu-item admin-only" href="admin.html" style="display:block;text-decoration:none;">🛡 لوحة المشرف</a>
+          <button class="menu-item install-only" onclick="closeToolsMenu(); installApp();">📲 ثبّت التطبيق على جهازك</button>
           <button class="menu-item live-only" style="color:var(--rust);" onclick="closeToolsMenu(); window.EnanAPI && EnanAPI.logout();">🚪 تسجيل الخروج</button>
           <button class="menu-item demo-only" onclick="closeToolsMenu(); resetDemo();">↺ إعادة تعيين البيانات التجريبية</button>
           <div class="toolbar-status" id="toolbarStatus" style="padding:8px 12px 2px; text-align:right;"></div>
@@ -636,6 +648,22 @@
 </div></div>
 
 <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importBackup(this)">
+<div class="modal-overlay" id="installModal"><div class="modal" style="width:400px;"><h3>📲 ثبّت عِنان على جهازك</h3>
+  <div id="installIOS" class="hint" style="font-size:15px; color:#1B2733; line-height:2.1;">
+    <b>على الآيفون والآيباد (من متصفح Safari):</b><br>
+    1. اضغط زر المشاركة <span style="display:inline-block; border:1.5px solid #3478F6; color:#3478F6; border-radius:5px; padding:0 5px; font-weight:700;">⬆</span> أسفل الشاشة.<br>
+    2. اختر <b>«إضافة إلى الشاشة الرئيسية»</b>.<br>
+    3. اضغط <b>«إضافة»</b>، فتظهر أيقونة عِنان مع تطبيقاتك.
+  </div>
+  <div id="installOther" class="hint" style="font-size:15px; color:#1B2733; line-height:2.1;">
+    <b>على أندرويد (من متصفح Chrome):</b><br>
+    1. اضغط قائمة المتصفح <b>⋮</b> أعلى الشاشة.<br>
+    2. اختر <b>«تثبيت التطبيق»</b> أو <b>«إضافة إلى الشاشة الرئيسية»</b>.<br>
+    <b>على الكمبيوتر:</b> اضغط أيقونة التثبيت في شريط العنوان.
+  </div>
+  <div class="modal-actions"><button class="confirm" onclick="closeModal('installModal')">حسنًا</button></div>
+</div></div>
+
 <div id="printArea"></div>
 
 <script>
@@ -1416,6 +1444,29 @@ function exportReportExcel(){
   XLSX.writeFile(wb, `تقرير_${STABLE_NAME}_${m}.xlsx`);
 }
 function openReportModal(){ setAppSection('reports'); }
+
+/* ══ التثبيت على الشاشة الرئيسية ══ */
+let deferredInstall=null;
+const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches || navigator.standalone===true;
+const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+function updateInstallUI(){ document.body.classList.toggle('installed', isStandalone()); }
+window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferredInstall=e; });
+window.addEventListener('appinstalled', ()=>{ deferredInstall=null; updateInstallUI(); toast('تم تثبيت عِنان على جهازك ✓'); });
+async function installApp(){
+  if(deferredInstall){
+    deferredInstall.prompt();
+    const r=await deferredInstall.userChoice.catch(()=>null);
+    deferredInstall=null;
+    if(r && r.outcome==='accepted') return;
+  }
+  document.getElementById('installIOS').style.display = isIOS() ? 'block' : 'none';
+  document.getElementById('installOther').style.display = isIOS() ? 'none' : 'block';
+  document.getElementById('installModal').classList.add('show');
+}
+if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost')){
+  window.addEventListener('load', ()=>navigator.serviceWorker.register('sw.js').catch(e=>console.warn('SW', e)));
+}
+updateInstallUI();
 
 startup();
 </script>

@@ -1,0 +1,23 @@
+{
+  "name": "عِنان | إسطبلك بيدك",
+  "short_name": "عِنان",
+  "description": "نظام عربي لإدارة الإسطبلات: حصص التدريب، والإيواء، والمواعيد، والمصاريف، والتقارير.",
+  "id": "./app.html",
+  "start_url": "./app.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "dir": "rtl",
+  "lang": "ar",
+  "background_color": "#0F1F33",
+  "theme_color": "#0F1F33",
+  "categories": ["business", "productivity"],
+  "icons": [
+    { "src": "icons/enan-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/enan-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/enan-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "النسخة التجريبية", "url": "./app.html?demo", "icons": [{ "src": "icons/enan-192.png", "sizes": "192x192" }] }
+  ]
+}
