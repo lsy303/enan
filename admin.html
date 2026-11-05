@@ -95,6 +95,7 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<'
 const toast = (m) => { const t = $('toast'); t.textContent = m; t.style.display = 'block'; clearTimeout(t._h); t._h = setTimeout(() => t.style.display = 'none', 3000); };
 const fmt = (d) => d ? d.toLocaleDateString('ar-BH-u-nu-latn', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
 const DAY = 864e5;
+const COUNTRY = { BH:'🇧🇭 البحرين', SA:'🇸🇦 السعودية', AE:'🇦🇪 الإمارات', KW:'🇰🇼 الكويت', QA:'🇶🇦 قطر', OM:'🇴🇲 عُمان', JO:'🇯🇴 الأردن', EG:'🇪🇬 مصر' };
 
 let STABLES = [], filter = 'all';
 const LABEL = { all: 'الكل', pending: 'بانتظار التفعيل', active: 'فعّال', expiring: 'ينتهي قريبًا', expired: 'منتهٍ', suspended: 'موقوف' };
@@ -141,7 +142,7 @@ function render() {
         <div>
           <div class="name">${esc(s.name)}</div>
           <div class="meta"><span dir="ltr">${esc(s.ownerEmail || '')}</span>${wa ? ` · <a href="https://wa.me/${wa}" target="_blank" rel="noopener" dir="ltr">${esc(s.phone)}</a>` : ''}<br>
-          سُجّل في ${fmt(s.createdAt?.toDate?.())}${sub ? ' · ' + sub : ''}</div>
+          ${COUNTRY[s.country || 'BH'] || ''} · سُجّل في ${fmt(s.createdAt?.toDate?.())}${sub ? ' · ' + sub : ''}</div>
         </div>
         <span class="pill ${st}">${LABEL[st]}</span>
       </div>
