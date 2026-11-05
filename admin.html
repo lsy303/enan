@@ -46,6 +46,7 @@
   .err{color:var(--red); font-size:14px; min-height:18px;}
   .toast{position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--navy); color:#fff; padding:11px 18px; border-radius:10px; font-weight:700; display:none; z-index:10;}
   @media (max-width:640px){ .stats{grid-template-columns:repeat(2,1fr);} }
+  .suhub-dev{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;color:#6B6355;font-size:13px;line-height:1}.suhub-dev img{display:inline-block;vertical-align:middle;height:22px;width:auto}.suhub-dev a{color:#3FA3E8;font-weight:700;text-decoration:none}
 </style>
 </head>
 <body>
@@ -69,6 +70,7 @@
   <div id="list"><div class="msg">جارٍ التحميل…</div></div>
 </main>
 <div class="msg" id="status">جارٍ التحميل…</div>
+<div class="suhub-dev" style="margin:10px 0 24px;">تطوير <img src="icons/suhub-lockup.png" alt="سُحُب" height="22"> · <a href="https://instagram.com/suhub.apps" target="_blank" rel="noopener" dir="ltr">@Suhub.apps</a></div>
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -90,7 +92,7 @@ const auth = AU.getAuth(app), db = FS.getFirestore(app);
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const toast = (m) => { const t = $('toast'); t.textContent = m; t.style.display = 'block'; clearTimeout(t._h); t._h = setTimeout(() => t.style.display = 'none', 3000); };
-const fmt = (d) => d ? d.toLocaleDateString('ar-BH', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
+const fmt = (d) => d ? d.toLocaleDateString('ar-BH-u-nu-latn', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
 const DAY = 864e5;
 
 let STABLES = [], filter = 'all';

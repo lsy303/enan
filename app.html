@@ -219,6 +219,67 @@
   .modal label.chk{display:flex; align-items:center; gap:8px; font-size:15px;}
   .gate input[dir="ltr"]:placeholder-shown, .modal input[dir="ltr"]:placeholder-shown{direction:rtl; text-align:right;}
 
+  /* ── أقسام إضافية ── */
+  .section-tab .cnt{display:inline-block; min-width:20px; padding:0 6px; margin-inline-start:4px; border-radius:10px; background:var(--rust); color:#fff; font-size:12px; line-height:19px;}
+  #reportsSidebar,#remindersSidebar{display:flex; flex-direction:column; gap:12px; flex:1; min-height:0;}
+  .side-hint{font-size:13.5px; color:#8FA3BE; line-height:1.8;}
+  .rep-opts{display:flex; flex-direction:column; gap:8px; color:#E7ECF2; font-size:14.5px;}
+  .rep-opts label{display:flex; align-items:center; gap:8px; cursor:pointer;}
+  .rep-opts input[type=month]{padding:9px 10px; border-radius:9px; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.06); color:#fff; font-family:inherit; font-size:15px; color-scheme:dark;}
+  .rep-btns{display:flex; gap:8px;}
+  .rep-btns button{flex:1; padding:10px; border-radius:10px; border:1.5px solid #fff; font-family:'Cairo'; font-weight:700; font-size:14.5px; cursor:pointer; background:var(--brass); color:var(--leather-dark);}
+  .rep-btns button.alt{background:transparent; color:#E7ECF2;}
+
+  /* التقرير: نفس التنسيق للمعاينة والطباعة */
+  .rep{background:#fff; border-radius:16px; padding:22px; box-shadow:var(--card-shadow); color:#1B2733;}
+  .rep-head{display:flex; align-items:center; justify-content:space-between; gap:14px; border-bottom:3px solid #C9A15A; padding-bottom:12px; margin-bottom:16px; flex-wrap:wrap;}
+  .rep-head h1{font-family:'Cairo'; font-size:22px; margin:0;}
+  .rep-head .meta{font-size:13px; color:#6B6355; line-height:1.7;}
+  .rep-kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:6px;}
+  .rep-kpi{border:1px solid #E8DFC8; border-radius:10px; padding:10px;}
+  .rep-kpi .l{font-size:12.5px; color:#8A6B35; font-weight:700;}
+  .rep-kpi .v{font-family:'Cairo'; font-weight:900; font-size:19px;}
+  .rep-kpi.net .v{color:#1F9254;} .rep-kpi.neg .v{color:#E24B4A;}
+  .rep-title{font-family:'Cairo'; font-weight:700; font-size:16px; margin:18px 0 8px; color:#0F1F33;}
+  .rep-table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  .rep-table th,.rep-table td{border:1px solid #D9CBA8; padding:7px 9px; text-align:right;}
+  .rep-table th{background:#0F1F33; color:#F5F1E8; font-weight:700;}
+  .rep-table tr:nth-child(even) td{background:#FAF6EC;}
+  .rep-table tfoot td{font-weight:700; background:#F1E8D2 !important;}
+  .rep-table .ok{color:#1F9254; font-weight:700;} .rep-table .no{color:#E24B4A; font-weight:700;}
+  .rep-empty{color:#6B6355; font-size:14px; padding:6px 0;}
+  .rep-foot{margin-top:18px; padding-top:10px; border-top:1px dashed #D9CBA8; font-size:12px; color:#8A8070; display:flex; justify-content:space-between; align-items:center; gap:10px;}
+  .rep-foot img{height:18px; vertical-align:middle;}
+  @media (max-width:700px){ .rep{padding:14px;} .rep-kpis{grid-template-columns:repeat(2,1fr);} .rep-table{font-size:12.5px;} }
+  @media print{
+    @page{size:A4; margin:12mm;}
+    #printArea{padding:0 !important;}
+    #printArea .rep{box-shadow:none; padding:0; border-radius:0;}
+    .rep-table th{-webkit-print-color-adjust:exact; print-color-adjust:exact;}
+    .rep-table tr, .rep-kpi{break-inside:avoid;}
+    .rep-title{break-after:avoid;}
+  }
+
+  /* التذكيرات */
+  .rem-group{margin-bottom:18px;}
+  .rem-group h3{font-family:'Cairo'; font-size:17px; margin:0 0 8px; display:flex; align-items:center; gap:8px;}
+  .rem-group h3 .n{font-size:13px; background:#F1E8D2; color:#8A6B35; border-radius:12px; padding:1px 9px;}
+  .rem-row{display:flex; align-items:center; justify-content:space-between; gap:10px; background:#fff; border-radius:12px; padding:11px 14px; margin-bottom:6px; box-shadow:0 1px 0 rgba(27,39,51,.06), 0 4px 12px -6px rgba(27,39,51,.18);}
+  .rem-row .who{font-weight:700; font-size:16px;}
+  .rem-row .det{font-size:13.5px; color:#6B6355; margin-top:2px;}
+  .rem-row .last{font-size:12px; color:#1F9254; margin-top:2px;}
+  .rem-row .acts{display:flex; gap:6px; flex-shrink:0;}
+  .rem-row .wa{background:#1FA855; color:#fff; border:none; border-radius:9px; padding:8px 12px; font-family:'Cairo'; font-weight:700; font-size:14px; cursor:pointer; white-space:nowrap;}
+  .rem-row .go{background:#F5F1E8; color:#0F1F33; border:none; border-radius:9px; padding:8px 10px; font-weight:700; cursor:pointer;}
+  .rem-row .nophone{font-size:12.5px; color:#A0968A;}
+  .rem-ok{background:#E2F4EA; color:#1F7A47; border-radius:12px; padding:14px; font-weight:700; text-align:center;}
+
+  /* توقيع سُحُب */
+  .suhub-dev{display:flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap; color:#8FA3BE; font-size:13px; line-height:1; margin-top:10px;}
+  .suhub-dev img{display:inline-block; vertical-align:middle; height:22px; width:auto;}
+  .suhub-dev a{color:#3FA3E8; font-weight:700; text-decoration:none;}
+  @media print{ .suhub-dev{display:none !important;} }
+
 </style>
 </head>
 <body>
@@ -271,7 +332,7 @@
 
     <div class="gate-err" id="gateFormErr"></div>
   </div>
-  <div class="gate-foot">من تطبيقات سُحُب</div>
+  <div class="suhub-dev" style="margin-top:18px;">تطوير <img src="icons/suhub-lockup-white.png" alt="سُحُب" height="22"> · <a href="https://instagram.com/suhub.apps" target="_blank" rel="noopener" dir="ltr">@Suhub.apps</a></div>
 </div>
 <div id="statusBanner" class="status-banner"></div>
 <div id="toast" class="toast"></div>
@@ -295,7 +356,7 @@
         <button class="settings-btn" onclick="toggleToolsMenu()">⋮</button>
         <div class="tools-menu" id="toolsMenu">
           <div class="menu-section-label owner-only">التقارير</div>
-          <button class="menu-item owner-only" onclick="closeToolsMenu(); openReportModal();">📊 تصدير تقرير شهري</button>
+          <button class="menu-item owner-only" onclick="closeToolsMenu(); openReportModal();">📊 التقارير</button>
           <div class="menu-section-label owner-only">الحفظ</div>
           <button class="menu-item owner-only" onclick="closeToolsMenu(); downloadJsonBackup();">⬇ تنزيل نسخة احتياطية</button>
           <button class="menu-item owner-only live-only rw-only" onclick="closeToolsMenu(); document.getElementById('importFile').click();">📥 استيراد نسخة احتياطية</button>
@@ -316,6 +377,8 @@
       <button class="section-tab" id="secBoarding" onclick="setAppSection('boarding')">🏠 الإيواء</button>
       <button class="section-tab" id="secSchedule" onclick="setAppSection('schedule')">📅 المواعيد</button>
       <button class="section-tab owner-only" id="secExpenses" onclick="setAppSection('expenses')">💰 المصاريف</button>
+      <button class="section-tab" id="secReminders" onclick="setAppSection('reminders')">🔔 التذكيرات</button>
+      <button class="section-tab owner-only" id="secReports" onclick="setAppSection('reports')">📊 التقارير</button>
     </div>
 
     <div id="trainingSidebar">
@@ -353,7 +416,23 @@
       <div class="trainee-list" id="expensesList"></div>
     </div>
 
-    <div class="storage-note"><span class="live-only">🔒 بياناتك محفوظة بأمان في السحابة</span><span class="demo-only">🧪 نسخة تجريبية ببيانات وهمية</span><div id="userLine" class="live-only" style="margin-top:4px;opacity:.8;"></div><div style="margin-top:8px;opacity:.6;">عِنان · من تطبيقات سُحُب</div></div>
+    <div id="remindersSidebar" style="display:none;">
+      <div class="side-hint">قائمة بمن يحتاج تذكيرًا الآن: الحصص المنتهية أو القليلة، والرسوم المستحقة، وإيواء هذا الشهر غير المدفوع.<br>اضغط «تذكير واتساب» لتفتح رسالة جاهزة يمكنك تعديلها قبل الإرسال.</div>
+    </div>
+
+    <div id="reportsSidebar" style="display:none;">
+      <div class="rep-opts">
+        <label style="display:block;">الشهر<br><input type="month" id="repMonth" onchange="renderReport()" style="width:100%; margin-top:6px;"></label>
+        <label><input type="checkbox" class="rep-sec" value="finance" checked onchange="renderReport()"> الملخص المالي</label>
+        <label><input type="checkbox" class="rep-sec" value="trainees" checked onchange="renderReport()"> أرصدة المتدربين</label>
+        <label><input type="checkbox" class="rep-sec" value="attendance" checked onchange="renderReport()"> سجل الحضور</label>
+        <label><input type="checkbox" class="rep-sec" value="boarding" checked onchange="renderReport()"> الإيواء</label>
+        <label><input type="checkbox" class="rep-sec" value="expenses" checked onchange="renderReport()"> المصاريف</label>
+      </div>
+      <div class="rep-btns"><button onclick="printReport()">🖨 طباعة / PDF</button><button class="alt" onclick="exportReportExcel()">Excel</button></div>
+    </div>
+
+    <div class="storage-note"><span class="live-only">🔒 بياناتك محفوظة بأمان في السحابة</span><span class="demo-only">🧪 نسخة تجريبية ببيانات وهمية</span><div id="userLine" class="live-only" style="margin-top:4px;opacity:.8;"></div><div class="suhub-dev">تطوير <img src="icons/suhub-lockup-white.png" alt="سُحُب" height="22"> · <a href="https://instagram.com/suhub.apps" target="_blank" rel="noopener" dir="ltr">@Suhub.apps</a></div></div>
   </div>
 
   <div class="main">
@@ -461,6 +540,15 @@
           <div class="log-list" id="expensesLog"></div>
         </div>
       </div>
+    </div>
+
+    <div id="remindersMain" style="display:none;">
+      <div class="top-stats" id="remindersTopStats"></div>
+      <div id="remindersBody"></div>
+    </div>
+
+    <div id="reportsMain" style="display:none;">
+      <div id="reportPreview"></div>
     </div>
   </div>
 </div>
@@ -648,6 +736,7 @@ function loadData(){
   normalizeData();
 }
 function saveData(){
+  if(typeof refreshSideViews==='function') refreshSideViews();
   if(DEMO){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA)); }catch(e){} return; }
   if(READONLY){ toast('الاشتراك غير فعّال، لذلك لا يمكن حفظ التعديلات'); return; }
   if(window.EnanSync) window.EnanSync();
@@ -1015,6 +1104,7 @@ function setBanner(b){
 function rerenderAllSections(){
   renderBrand(); renderAll(); renderBoarderTopStats(); renderBoarderList(); renderBoarderPanel(); renderSchedule();
   if(ROLE==='owner') renderExpenses();
+  refreshSideViews();
 }
 function bootApp(o){
   STABLE_NAME=o.stableName||'عِنان'; ROLE=o.role||'owner'; READONLY=!!o.readonly;
@@ -1082,7 +1172,7 @@ function openSettingsModal(){
   document.getElementById('setName').value=STABLE_NAME;
   document.getElementById('setPhone').value=info.phone||'';
   const end=info.subscriptionEnd && info.subscriptionEnd.toDate ? info.subscriptionEnd.toDate() : null;
-  document.getElementById('subInfo').textContent = end ? ('الاشتراك ساري حتى: '+end.toLocaleDateString('ar-BH',{year:'numeric',month:'long',day:'numeric'})) : '';
+  document.getElementById('subInfo').textContent = end ? ('الاشتراك ساري حتى: '+end.toLocaleDateString('ar-BH-u-nu-latn',{year:'numeric',month:'long',day:'numeric'})) : '';
   document.getElementById('settingsModal').classList.add('show');
 }
 async function submitSettings(){
@@ -1149,6 +1239,183 @@ function importBackup(input){
   r.readAsText(file);
 }
 function reloadFromServer(){ if(window.EnanAPI) EnanAPI.reload(); }
+
+/* ══ الأقسام: التدريب، الإيواء، المواعيد، المصاريف، التذكيرات، التقارير ══ */
+const SECTIONS = { training:'secTraining', boarding:'secBoarding', schedule:'secSchedule', expenses:'secExpenses', reminders:'secReminders', reports:'secReports' };
+function setAppSection(section){
+  if((section==='expenses'||section==='reports') && ROLE!=='owner') section='training';
+  appSection=section;
+  Object.keys(SECTIONS).forEach(k=>{
+    document.getElementById(SECTIONS[k]).classList.toggle('active', k===section);
+    document.getElementById(k+'Sidebar').style.display = k===section?'flex':'none';
+    document.getElementById(k+'Main').style.display = k===section?'block':'none';
+  });
+  if(section==='boarding'){ renderBoarderList(); renderBoarderTopStats(); }
+  else if(section==='schedule'){ renderSchedule(); }
+  else if(section==='expenses'){ renderExpenses(); }
+  else if(section==='reminders'){ renderReminders(); }
+  else if(section==='reports'){ renderReport(); }
+  else { renderTraineeList(); renderTopStats(); }
+}
+function refreshSideViews(){
+  updateReminderBadge();
+  if(appSection==='reminders') renderReminders();
+  if(appSection==='reports') renderReport();
+}
+const NUM_LOCALE='ar-BH-u-nu-latn';
+function monthLabel(m){ return new Date(m+'-01T12:00:00').toLocaleDateString(NUM_LOCALE,{month:'long', year:'numeric'}); }
+const f3=n=>(Math.round(n*1000)/1000).toFixed(3);
+/* تمييز العدد: حصة واحدة، حصتان، 3–10 حصص، 11+ حصة */
+function hissa(n){ n=+n; if(n===1) return 'حصة واحدة'; if(n===2) return 'حصتان'; const i=Math.abs(n)%100; return `${n} ${(Number.isInteger(n)&&i>=3&&i<=10)?'حصص':'حصة'}`; }
+
+/* ══ التذكيرات ══ */
+function reminderLists(){
+  const cm=todayStr().slice(0,7);
+  const active=DATA.trainees.filter(t=>!t.archived);
+  return {
+    finished: active.filter(t=>t.packages.length && remainingHours(t)<=0).sort((a,b)=>a.name.localeCompare(b.name,'ar')),
+    low: active.filter(t=>{ const r=remainingHours(t); return r>0 && r<=2; }).sort((a,b)=>remainingHours(a)-remainingHours(b)),
+    fees: active.filter(t=>feeDue(t)>0).sort((a,b)=>feeDue(b)-feeDue(a)),
+    boarding: DATA.boarders.filter(b=>!b.archived && b.monthlyFee>0 && !isPaidForMonth(b,cm)).sort((a,b)=>a.horseName.localeCompare(b.horseName,'ar')),
+  };
+}
+function updateReminderBadge(){
+  const L=reminderLists(); const n=L.finished.length+L.low.length+L.boarding.length+(ROLE==='owner'?L.fees.length:0);
+  const el=document.getElementById('secReminders'); if(!el) return;
+  el.innerHTML='🔔 التذكيرات'+(n?`<span class="cnt">${n}</span>`:'');
+}
+function lastLine(x){ return x.lastReminder?`<div class="last">✓ آخر تذكير: ${formatDate(x.lastReminder)}</div>`:''; }
+function remRow(name, detail, item, kind, goto){
+  const wa = item.phone ? `<button class="wa" onclick="openReminder('${kind}','${item.id}')">📱 تذكير واتساب</button>` : `<span class="nophone">لا يوجد رقم</span>`;
+  return `<div class="rem-row"><div><div class="who">${escapeHtml(name)}</div><div class="det">${detail}</div>${lastLine(item)}</div><div class="acts">${wa}<button class="go" title="فتح" onclick="${goto}">↖</button></div></div>`;
+}
+function renderReminders(){
+  const L=reminderLists();
+  const owner=ROLE==='owner';
+  const totalFees=L.fees.reduce((s,t)=>s+feeDue(t),0);
+  const unpaidBoarding=L.boarding.reduce((s,b)=>s+b.monthlyFee,0);
+  document.getElementById('remindersTopStats').innerHTML=`
+    <div class="stat-card ${L.finished.length?'warn':''}"><div class="label">حصص منتهية</div><div class="value">${L.finished.length}</div></div>
+    <div class="stat-card ${L.low.length?'warn':''}"><div class="label">رصيد منخفض (≤ 2 حصة)</div><div class="value">${L.low.length}</div></div>
+    <div class="stat-card"><div class="label">${owner?'رسوم تدريب مستحقة (د.ب)':'رسوم تدريب مستحقة'}</div><div class="value">${owner?f3(totalFees):L.fees.length}</div></div>
+    <div class="stat-card ${L.boarding.length?'warn':''}"><div class="label">إيواء غير مدفوع هذا الشهر</div><div class="value">${L.boarding.length}</div></div>`;
+  const tGo=id=>`setAppSection('training'); setListView('active'); selectTrainee('${id}')`;
+  const bGo=id=>`setAppSection('boarding'); setBoarderListView('active'); selectBoarder('${id}')`;
+  const group=(title, rows, empty)=>`<div class="rem-group"><h3>${title} <span class="n">${rows.length}</span></h3>${rows.length?rows.join(''):`<div class="rep-empty">${empty}</div>`}</div>`;
+  const all=L.finished.length+L.low.length+L.boarding.length+(owner?L.fees.length:0);
+  document.getElementById('remindersBody').innerHTML = (all===0?`<div class="rem-ok">✓ لا توجد تذكيرات معلّقة. كل شيء على ما يرام.</div>`:'') +
+    group('⛔ انتهت حصصهم', L.finished.map(t=>remRow(t.name, `استُخدمت ${hissa(totalUsedHours(t))} من أصل ${hissa(totalPurchased(t))}`, t, 'finished', tGo(t.id))), 'لا يوجد') +
+    group('⚠️ رصيد منخفض', L.low.map(t=>remRow(t.name, `المتبقي: ${hissa(remainingHours(t))}`, t, 'low', tGo(t.id))), 'لا يوجد') +
+    (owner? group('💳 رسوم تدريب مستحقة', L.fees.map(t=>remRow(t.name, `مستحق ${f3(feeDue(t))} د.ب`, t, 'fee', tGo(t.id))), 'لا يوجد') : '') +
+    group('🏠 إيواء غير مدفوع هذا الشهر', L.boarding.map(b=>remRow(`${b.horseName} · ${b.ownerName}`, `${f3(b.monthlyFee)} د.ب عن ${monthLabel(todayStr().slice(0,7))}`, b, 'boarding', bGo(b.id))), 'لا يوجد');
+}
+
+/* رسائل واتساب: نص جاهز حسب الحالة، يمكن تعديله قبل الإرسال */
+let waTarget=null;
+function reminderMessage(kind, x){
+  const S=STABLE_NAME;
+  if(kind==='finished') return `مرحبًا ${x.name}،\nنود إعلامكم بأن باقة حصصكم في ${S} قد انتهت (استُخدمت ${hissa(totalUsedHours(x))} من أصل ${hissa(totalPurchased(x))}).\nيسعدنا تجديد الباقة لمواصلة التدريب، ويمكنكم الرد على هذه الرسالة للحجز.\nشكرًا لكم`;
+  if(kind==='low') return `مرحبًا ${x.name}،\nنود تذكيركم بأن رصيدكم من الحصص في ${S} على وشك الانتهاء (المتبقي: ${hissa(remainingHours(x))} فقط).\nيرجى التواصل معنا لتجديد الباقة.\nشكرًا لكم`;
+  if(kind==='fee') return `مرحبًا ${x.name}،\nنود تذكيركم بوجود رسوم تدريب مستحقة في ${S} بقيمة ${f3(feeDue(x))} د.ب.\nشكرًا لتعاونكم`;
+  if(kind==='boarding') return `مرحبًا ${x.ownerName}،\nنود تذكيركم بأن رسوم إيواء الخيل «${x.horseName}» في ${S} عن شهر ${monthLabel(todayStr().slice(0,7))} لم تصلنا بعد (${f3(x.monthlyFee)} د.ب).\nشكرًا لكم`;
+  return '';
+}
+function openReminder(kind, id){
+  const x = kind==='boarding' ? getBoarder(id) : getTrainee(id);
+  if(!x || !x.phone) return;
+  waTarget={kind, id};
+  waPendingPhone=cleanPhoneForWhatsApp(x.phone);
+  document.getElementById('waPhoneLabel').textContent='إلى: '+x.phone;
+  document.getElementById('waMessageBox').value=reminderMessage(kind, x);
+  document.getElementById('waModal').classList.add('show');
+}
+function sendWhatsAppReminder(id){ const t=getTrainee(id); if(!t) return; openReminder(remainingHours(t)<=0?'finished':'low', id); }
+function sendBoardingReminder(id){ openReminder('boarding', id); }
+function openWhatsAppWithEditedMessage(){
+  const msg=document.getElementById('waMessageBox').value.trim(); if(!msg) return;
+  window.open(`https://wa.me/${waPendingPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+  closeModal('waModal');
+  if(waTarget && !READONLY){
+    const x = waTarget.kind==='boarding' ? getBoarder(waTarget.id) : getTrainee(waTarget.id);
+    if(x){ x.lastReminder=todayStr(); saveData(); }
+  }
+  waTarget=null;
+}
+
+/* ══ التقارير ══ */
+function repSections(){ return [...document.querySelectorAll('.rep-sec:checked')].map(x=>x.value); }
+function repMonth(){ const el=document.getElementById('repMonth'); if(!el.value) el.value=todayStr().slice(0,7); return el.value; }
+function monthlyCollected(m){ let t=0; DATA.trainees.forEach(tr=>tr.packages.forEach(p=>{ if(p.date.slice(0,7)===m && p.paid) t+=p.fee; })); return t; }
+
+function buildReport(m){
+  const secs=repSections();
+  const trainIncome=monthlyIncome(m), collected=monthlyCollected(m), boardIncome=monthlyBoardingIncome(m), exp=monthlyExpenseTotal(m);
+  const net=trainIncome+boardIncome-exp;
+  const att=getMonthlyAttendance(m);
+  const trainees=DATA.trainees.filter(t=>!t.archived).sort((a,b)=>a.name.localeCompare(b.name,'ar'));
+  const boarders=DATA.boarders.filter(b=>!b.archived).sort((a,b)=>a.horseName.localeCompare(b.horseName,'ar'));
+  const expRows=monthlyExpenses(m).slice().sort((a,b)=>a.date.localeCompare(b.date));
+  const now=new Date().toLocaleDateString(NUM_LOCALE,{year:'numeric',month:'long',day:'numeric'});
+  let h=`<div class="rep"><div class="rep-head"><div><h1>${escapeHtml(STABLE_NAME)}</h1><div class="meta">التقرير الشهري · ${monthLabel(m)}</div></div><div class="meta">تاريخ الإصدار: ${now}</div></div>`;
+
+  if(secs.includes('finance')){
+    const due=DATA.trainees.reduce((s,t)=>s+feeDue(t),0);
+    h+=`<div class="rep-title">الملخص المالي</div><div class="rep-kpis">
+      <div class="rep-kpi"><div class="l">دخل التدريب (باقات الشهر)</div><div class="v">${f3(trainIncome)}</div></div>
+      <div class="rep-kpi"><div class="l">دخل الإيواء المحصّل</div><div class="v">${f3(boardIncome)}</div></div>
+      <div class="rep-kpi"><div class="l">المصاريف</div><div class="v">${f3(exp)}</div></div>
+      <div class="rep-kpi ${net>=0?'net':'neg'}"><div class="l">صافي الدخل</div><div class="v">${f3(net)}</div></div>
+    </div><div class="rep-empty">المحصّل من باقات هذا الشهر: ${f3(collected)} د.ب · إجمالي رسوم التدريب المستحقة حاليًا: ${f3(due)} د.ب · المبالغ بالدينار البحريني</div>`;
+  }
+  if(secs.includes('trainees')){
+    h+=`<div class="rep-title">أرصدة المتدربين (${trainees.length})</div>`;
+    h+= trainees.length? `<table class="rep-table"><thead><tr><th>المتدرب</th><th>الهاتف</th><th>مشترى</th><th>مستخدم</th><th>متبقٍّ</th><th>حصص الشهر</th><th>رسوم مستحقة</th></tr></thead><tbody>${trainees.map(t=>{
+      const mh=t.attendance.filter(a=>a.date.slice(0,7)===m).reduce((s,a)=>s+a.hours,0), r=remainingHours(t), d=feeDue(t);
+      return `<tr><td>${escapeHtml(t.name)}</td><td dir="ltr" style="text-align:right">${escapeHtml(t.phone||'—')}</td><td>${totalPurchased(t)}</td><td>${totalUsedHours(t)}</td><td class="${r<=2?'no':''}">${r}</td><td>${mh}</td><td class="${d>0?'no':''}">${d>0?f3(d):'—'}</td></tr>`; }).join('')}</tbody></table>` : `<div class="rep-empty">لا يوجد متدربون</div>`;
+  }
+  if(secs.includes('attendance')){
+    const tot=att.reduce((s,a)=>s+a.hours,0);
+    h+=`<div class="rep-title">سجل الحضور (${att.length})</div>`;
+    h+= att.length? `<table class="rep-table"><thead><tr><th>التاريخ</th><th>الوقت</th><th>المتدرب</th><th>الحصص</th><th>ملاحظة</th></tr></thead><tbody>${att.map(a=>`<tr><td>${formatDate(a.date)}</td><td>${a.time||'—'}</td><td>${escapeHtml(a.traineeName)}</td><td>${a.hours}</td><td>${escapeHtml(a.note||'')}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="3">الإجمالي</td><td>${tot}</td><td></td></tr></tfoot></table>` : `<div class="rep-empty">لا يوجد حضور مسجّل في هذا الشهر</div>`;
+  }
+  if(secs.includes('boarding')){
+    h+=`<div class="rep-title">الإيواء (${boarders.length})</div>`;
+    h+= boarders.length? `<table class="rep-table"><thead><tr><th>الخيل</th><th>المالك</th><th>الهاتف</th><th>الرسوم الشهرية</th><th>حالة ${monthLabel(m)}</th></tr></thead><tbody>${boarders.map(b=>{ const p=b.payments.find(x=>x.month===m);
+      return `<tr><td>${escapeHtml(b.horseName)}</td><td>${escapeHtml(b.ownerName)}</td><td dir="ltr" style="text-align:right">${escapeHtml(b.phone||'—')}</td><td>${f3(b.monthlyFee)}</td><td class="${p?'ok':'no'}">${p?'مدفوع ('+formatDate(p.paidDate)+')':'غير مدفوع'}</td></tr>`; }).join('')}</tbody><tfoot><tr><td colspan="3">المحصّل</td><td colspan="2">${f3(boardIncome)} د.ب</td></tr></tfoot></table>` : `<div class="rep-empty">لا يوجد نزلاء</div>`;
+  }
+  if(secs.includes('expenses')){
+    const byCat={}; expRows.forEach(e=>byCat[e.category]=(byCat[e.category]||0)+e.amount);
+    h+=`<div class="rep-title">المصاريف (${expRows.length})</div>`;
+    h+= expRows.length? `<table class="rep-table"><thead><tr><th>التاريخ</th><th>الفئة</th><th>الوصف</th><th>المبلغ (د.ب)</th></tr></thead><tbody>${expRows.map(e=>`<tr><td>${formatDate(e.date)}</td><td>${escapeHtml(e.category)}</td><td>${escapeHtml(e.description||'')}</td><td>${f3(e.amount)}</td></tr>`).join('')}</tbody><tfoot>${Object.keys(byCat).sort((a,b)=>byCat[b]-byCat[a]).map(c=>`<tr><td colspan="3">${EXPENSE_CATEGORY_ICON[c]||''} ${escapeHtml(c)}</td><td>${f3(byCat[c])}</td></tr>`).join('')}<tr><td colspan="3">إجمالي المصاريف</td><td>${f3(exp)}</td></tr></tfoot></table>` : `<div class="rep-empty">لا توجد مصاريف مسجلة في هذا الشهر</div>`;
+  }
+  if(!secs.length) h+=`<div class="rep-empty">اختر قسمًا واحدًا على الأقل من القائمة.</div>`;
+  h+=`<div class="rep-foot"><span>أُعدّ بواسطة عِنان</span><span>تطوير سُحُب · @Suhub.apps</span></div></div>`;
+  return h;
+}
+function renderReport(){ if(ROLE!=='owner') return; document.getElementById('reportPreview').innerHTML=buildReport(repMonth()); }
+function printReport(){
+  const m=repMonth(); document.getElementById('printArea').innerHTML=buildReport(m);
+  const old=document.title; document.title=`تقرير ${STABLE_NAME} ${m}`;
+  setTimeout(()=>{ window.print(); document.title=old; },150);
+}
+function exportReportExcel(){
+  if(typeof XLSX==='undefined'){ alert('تعذّر تحميل أداة Excel. تحقق من اتصال الإنترنت ثم أعد المحاولة.'); return; }
+  const m=repMonth(), secs=repSections(), wb=XLSX.utils.book_new();
+  const add=(name, rows)=>{ const ws=XLSX.utils.json_to_sheet(rows.length?rows:[{'—':'لا توجد بيانات'}]); ws['!views']=[{RTL:true}]; XLSX.utils.book_append_sheet(wb, ws, name); };
+  if(secs.includes('finance')) add('الملخص المالي', [
+    {'البند':'دخل التدريب (باقات الشهر)','المبلغ (د.ب)':+f3(monthlyIncome(m))},
+    {'البند':'المحصّل من باقات الشهر','المبلغ (د.ب)':+f3(monthlyCollected(m))},
+    {'البند':'دخل الإيواء المحصّل','المبلغ (د.ب)':+f3(monthlyBoardingIncome(m))},
+    {'البند':'المصاريف','المبلغ (د.ب)':+f3(monthlyExpenseTotal(m))},
+    {'البند':'صافي الدخل','المبلغ (د.ب)':+f3(monthlyIncome(m)+monthlyBoardingIncome(m)-monthlyExpenseTotal(m))}]);
+  if(secs.includes('trainees')) add('المتدربون', DATA.trainees.filter(t=>!t.archived).map(t=>({'المتدرب':t.name,'الهاتف':t.phone,'مشترى':totalPurchased(t),'مستخدم':totalUsedHours(t),'متبقٍّ':remainingHours(t),'رسوم مستحقة (د.ب)':+f3(feeDue(t))})));
+  if(secs.includes('attendance')) add('الحضور', getMonthlyAttendance(m).map(a=>({'التاريخ':a.date,'الوقت':a.time,'المتدرب':a.traineeName,'الحصص':a.hours,'ملاحظة':a.note})));
+  if(secs.includes('boarding')) add('الإيواء', DATA.boarders.filter(b=>!b.archived).map(b=>{ const p=b.payments.find(x=>x.month===m); return {'الخيل':b.horseName,'المالك':b.ownerName,'الهاتف':b.phone,'الرسوم الشهرية (د.ب)':b.monthlyFee,'الحالة':p?'مدفوع':'غير مدفوع','تاريخ الدفع':p?p.paidDate:''}; }));
+  if(secs.includes('expenses')) add('المصاريف', monthlyExpenses(m).map(e=>({'التاريخ':e.date,'الفئة':e.category,'الوصف':e.description,'المبلغ (د.ب)':e.amount})));
+  if(!wb.SheetNames.length){ alert('اختر قسمًا واحدًا على الأقل'); return; }
+  XLSX.writeFile(wb, `تقرير_${STABLE_NAME}_${m}.xlsx`);
+}
+function openReportModal(){ setAppSection('reports'); }
 
 startup();
 </script>
