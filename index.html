@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>عِنان | إسطبلك بيدك</title>
+<meta name="description" content="عِنان: نظام عربي لإدارة الإسطبلات: حصص التدريب، والإيواء، والمواعيد، والمصاريف، في تطبيق واحد.">
+<meta name="theme-color" content="#0F1F33">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ font-family:'Tajawal', 'FreeSans', sans-serif; background:#F5F1E8; color:#1B2733; }
+  .hero{
+    position:relative; overflow:hidden; min-height:100vh;
+    background:
+      radial-gradient(900px 500px at 85% -8%, rgba(201,161,90,0.18), transparent 60%),
+      radial-gradient(700px 500px at -10% 105%, rgba(201,161,90,0.10), transparent 55%),
+      #0F1F33;
+    color:#F5F1E8; padding:40px 64px 60px;
+  }
+  .watermark{ position:absolute; left:-90px; bottom:-70px; width:520px; height:520px; opacity:0.05; }
+  .top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:60px; position:relative; z-index:1; }
+  .brand{display:flex; align-items:center; gap:14px;}
+  .brand svg{width:40px; height:40px;}
+  .brand .name{font-size:20px; font-weight:700;}
+  .brand .tagline{font-size:13px; color:#8FA3BE; margin-top:2px;}
+  .badge{ background:rgba(201,161,90,0.14); border:1px solid #C9A15A; color:#E3C88A; font-size:13px; font-weight:700; padding:7px 14px; border-radius:30px; }
+  .content{ display:flex; align-items:center; justify-content:space-between; gap:40px; flex-wrap:wrap; position:relative; z-index:1; }
+  .text{ max-width:520px; }
+  .text .eyebrow{ color:#C9A15A; font-size:15px; font-weight:700; margin-bottom:14px; }
+  .text h1{ font-size:44px; font-weight:700; line-height:1.3; color:#FFFFFF; margin-bottom:20px; }
+  .text h1 span{color:#C9A15A;}
+  .text p{ font-size:17px; line-height:1.9; color:#B9C4D4; margin-bottom:32px; }
+  .cta-row{ display:flex; gap:14px; flex-wrap:wrap; }
+  .btn-primary{ background:#C9A15A; color:#0F1F33; font-size:17px; font-weight:700; padding:15px 30px; border-radius:12px; text-decoration:none; display:inline-block; }
+  .btn-secondary{ background:transparent; border:1.5px solid rgba(255,255,255,0.3); color:#F5F1E8; font-size:16px; font-weight:700; padding:14px 28px; border-radius:12px; text-decoration:none; display:inline-block; }
+  .phone{
+    width:280px; height:560px; background:#0A1522; border-radius:36px; padding:12px;
+    box-shadow: 0 40px 80px -20px rgba(0,0,0,0.6), 0 0 0 2px rgba(201,161,90,0.35);
+    transform: rotate(-4deg); flex-shrink:0;
+  }
+  .phone .screen{ width:100%; height:100%; border-radius:26px; overflow:hidden; background:#F5F1E8; }
+  .app-bar{ background:#0F1F33; padding:18px 14px 12px; }
+  .app-bar span{ color:#F5F1E8; font-size:12px; font-weight:700; }
+  .app-tabs{ display:flex; gap:5px; margin-top:12px; }
+  .app-tab{ flex:1; text-align:center; padding:6px 0; border-radius:7px; font-size:10px; font-weight:700; border:1px solid rgba(255,255,255,0.15); color:#8FA3BE; }
+  .app-tab.active{ background:#E3C88A; color:#0F1F33; border-color:#E3C88A; }
+  .app-body{ padding:12px; }
+  .stat-grid{ display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-bottom:12px; }
+  .stat-c{ background:#FFFFFF; border-radius:9px; padding:9px 10px; }
+  .stat-c .l{ font-size:8.5px; color:#8A6B35; font-weight:700; }
+  .stat-c .v{ font-size:17px; font-weight:700; color:#0F1F33; margin-top:2px; }
+  .row-c{ display:flex; align-items:center; justify-content:space-between; background:#FFFFFF; border-radius:8px; padding:9px 10px; margin-bottom:6px; }
+  .row-c .n{ font-size:11.5px; font-weight:700; color:#0F1F33; }
+  .row-c .p{ font-size:8.5px; font-weight:700; padding:2px 7px; border-radius:20px; }
+  .row-c .p.ok{ background:rgba(31,146,84,0.15); color:#1F9254; }
+  .row-c .p.low{ background:rgba(226,75,74,0.15); color:#E24B4A; }
+
+  .features{ max-width:1100px; margin:70px auto 0; display:grid; grid-template-columns:repeat(6,1fr); gap:16px; position:relative; z-index:1; }
+  .feature{ background:rgba(255,255,255,0.04); border:1px solid rgba(201,161,90,0.25); border-radius:16px; padding:20px 10px; text-align:center; }
+  .feature .ic{ font-size:26px; display:block; margin-bottom:8px; }
+  .feature .lb{ font-size:14px; font-weight:700; }
+
+  .section{ max-width:900px; margin:0 auto; padding:80px 30px; text-align:center; }
+  .section h2{ font-family:'Tajawal'; font-size:30px; font-weight:700; margin-bottom:14px; color:#0F1F33; }
+  .section p{ font-size:16.5px; color:#6B6355; line-height:1.9; }
+  .footer-cta{ background:#C9A15A; text-align:center; padding:60px 30px; }
+  .footer-cta h2{ font-size:26px; font-weight:700; color:#0F1F33; margin-bottom:10px; }
+  .footer-cta p{ color:#3B2E14; margin-bottom:24px; }
+
+  @media (max-width:900px){
+    .hero{padding:24px 20px 40px;}
+    .content{flex-direction:column-reverse;}
+    .features{grid-template-columns:repeat(2,1fr);}
+    .text h1{font-size:32px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <svg class="watermark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <g fill="#C9A15A">
+      <path d="M8,58 C6,52 10,46 16,44 C18,36 24,30 30,26 L32,10 L40,24 C48,22 55,26 58,32 C52,34 46,38 44,44 C40,48 34,50 28,50 C24,54 20,58 14,60 C11,60 9,60 8,58 Z"/>
+      <path d="M46,30 C54,28 62,32 66,40 C60,42 54,40 50,36 Z"/>
+      <path d="M50,38 C60,38 68,44 72,52 C64,52 56,48 52,44 Z"/>
+      <path d="M52,48 C64,50 74,58 78,68 C68,66 58,60 54,54 Z"/>
+      <path d="M52,60 C62,64 70,74 72,86 C62,80 54,72 50,64 Z"/>
+      <path d="M46,70 C52,78 56,88 54,98 C46,90 42,80 42,70 Z"/>
+    </g>
+  </svg>
+
+  <div class="top">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;"><a class="badge" href="app.html" style="text-decoration:none;">دخول المشتركين</a></div>
+    <div class="brand">
+      <div>
+        <div class="name">عِنان</div>
+        <div class="tagline">إسطبلك بيدك</div>
+      </div>
+      <svg viewBox="0 0 100 100"><g fill="#C9A15A">
+        <path d="M8,58 C6,52 10,46 16,44 C18,36 24,30 30,26 L32,10 L40,24 C48,22 55,26 58,32 C52,34 46,38 44,44 C40,48 34,50 28,50 C24,54 20,58 14,60 C11,60 9,60 8,58 Z"/>
+        <path d="M46,30 C54,28 62,32 66,40 C60,42 54,40 50,36 Z"/>
+        <path d="M50,38 C60,38 68,44 72,52 C64,52 56,48 52,44 Z"/>
+        <path d="M52,48 C64,50 74,58 78,68 C68,66 58,60 54,54 Z"/>
+        <path d="M52,60 C62,64 70,74 72,86 C62,80 54,72 50,64 Z"/>
+        <path d="M46,70 C52,78 56,88 54,98 C46,90 42,80 42,70 Z"/>
+      </g></svg>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="text">
+      <div class="eyebrow">نظام عربي متكامل لإدارة الإسطبلات</div>
+      <h1>إسطبلك كله<br>في تطبيق <span>واحد</span></h1>
+      <p>حصص التدريب، والإيواء، والمواعيد، والمصاريف، والتقارير: كل شيء مرتّب في مكان واحد بدل الدفاتر وملفات الإكسل المتفرقة.</p>
+      <div class="cta-row">
+        <a class="btn-primary" href="app.html?demo">جرّب النسخة التجريبية</a>
+        <a class="btn-secondary" href="https://wa.me/97336777179?text=%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%D8%B9%D9%84%D9%8A%D9%83%D9%85%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%A7%D8%B4%D8%AA%D8%B1%D8%A7%D9%83%20%D9%81%D9%8A%20%D8%AA%D8%B7%D8%A8%D9%8A%D9%82%20%C2%AB%D8%B9%D9%90%D9%86%D8%A7%D9%86%C2%BB" target="_blank" rel="noopener">اطلب اشتراكك</a>
+      </div>
+    </div>
+    <div class="phone">
+      <div class="screen">
+        <div class="app-bar">
+          <span>اسم إسطبلك هنا</span>
+          <div class="app-tabs">
+            <div class="app-tab active">التدريب</div>
+            <div class="app-tab">الإيواء</div>
+            <div class="app-tab">المواعيد</div>
+          </div>
+        </div>
+        <div class="app-body">
+          <div class="stat-grid">
+            <div class="stat-c"><div class="l">إجمالي المتدربين</div><div class="v">12</div></div>
+            <div class="stat-c"><div class="l">الدخل الشهري</div><div class="v">480</div></div>
+          </div>
+          <div class="row-c"><span class="n">سارة أحمد</span><span class="p ok">7 حصص</span></div>
+          <div class="row-c"><span class="n">محمد خالد</span><span class="p low">2 حصة</span></div>
+          <div class="row-c"><span class="n">فاطمة العلي</span><span class="p ok">6 حصص</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="feature"><span class="ic">🐴</span><span class="lb">التدريب</span></div>
+    <div class="feature"><span class="ic">🏠</span><span class="lb">الإيواء</span></div>
+    <div class="feature"><span class="ic">📅</span><span class="lb">المواعيد</span></div>
+    <div class="feature"><span class="ic">📊</span><span class="lb">تقارير</span></div>
+    <div class="feature"><span class="ic">📱</span><span class="lb">تذكير واتساب</span></div>
+    <div class="feature"><span class="ic">👥</span><span class="lb">حسابات الموظفين</span></div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>جرّب بنفسك قبل أن تقرّر</h2>
+  <p>تحتوي النسخة التجريبية على بيانات وهمية جاهزة لتتصفح كل الأقسام فورًا، بدون تسجيل أو تفعيل. وفي النسخة الكاملة تُحفظ بياناتك بأمان في السحابة، وتصل إليها من أي جهاز، وتضيف موظفيك بصلاحيات محددة.</p>
+</div>
+
+<div class="footer-cta" id="contact">
+  <h2>اشترك في عِنان</h2>
+  <p>سجّل إسطبلك، ونفعّل حسابك خلال يوم عمل، وننقل بياناتك الحالية مجانًا.</p>
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;"><a class="btn-primary" style="background:#0F1F33;color:#F5F1E8;" href="app.html">سجّل إسطبلك</a><a class="btn-primary" style="background:#1FA855;color:#fff;" href="https://wa.me/97336777179?text=%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%D8%B9%D9%84%D9%8A%D9%83%D9%85%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%A7%D8%B4%D8%AA%D8%B1%D8%A7%D9%83%20%D9%81%D9%8A%20%D8%AA%D8%B7%D8%A8%D9%8A%D9%82%20%C2%AB%D8%B9%D9%90%D9%86%D8%A7%D9%86%C2%BB" target="_blank" rel="noopener">تواصل عبر واتساب</a></div>
+  <p style="margin-top:22px;font-size:13px;opacity:.7;">عِنان · من تطبيقات سُحُب</p>
+</div>
+
+</body>
+</html>

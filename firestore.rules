@@ -1,0 +1,168 @@
+rules_version = '2';
+
+// ───────────────────────────────────────────────────────────────
+//  عِنان — قواعد أمان Firestore
+//  الهيكل:
+//    admins/{uid}                         ← حسابك أنت (تُنشأ يدوياً من الكونسول)
+//    users/{uid}                          ← ربط المستخدم بإسطبله
+//    stables/{stableId}                   ← بيانات الإسطبل + الاشتراك
+//      members/{uid}                      ← المالك والموظفون وصلاحياتهم
+//      trainees/{id}                      ← المتدربون
+//        packages/{id}                    ← باقات الحصص
+//        attendance/{id}                  ← سجل الحضور
+//      boarders/{id}                      ← خيول الإيواء
+//        payments/{id}                    ← دفعات الإيواء الشهرية
+//      schedule/{id}                      ← المواعيد
+//      expenses/{id}                      ← المصاريف (للمالك فقط)
+// ───────────────────────────────────────────────────────────────
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── دوال مساعدة ──────────────────────────────────────────
+    function signedIn() { return request.auth != null; }
+    function uid()      { return request.auth.uid; }
+
+    function isAdmin() {
+      return signedIn() && exists(/databases/$(database)/documents/admins/$(uid()));
+    }
+
+    function stableDoc(stableId) {
+      return get(/databases/$(database)/documents/stables/$(stableId));
+    }
+
+    function memberDoc(stableId) {
+      return get(/databases/$(database)/documents/stables/$(stableId)/members/$(uid()));
+    }
+
+    function isMember(stableId) {
+      return signedIn() && exists(/databases/$(database)/documents/stables/$(stableId)/members/$(uid()));
+    }
+
+    function isOwner(stableId) {
+      return isMember(stableId) && memberDoc(stableId).data.role == 'owner';
+    }
+
+    // الاشتراك فعّال: مُفعَّل من قبلك + تاريخ الانتهاء لم يمر
+    function isActive(stableId) {
+      let s = stableDoc(stableId).data;
+      return s.status == 'active' && s.subscriptionEnd > request.time;
+    }
+
+    // القراءة متاحة حتى بعد انتهاء الاشتراك (حتى لا يفقد العميل بياناته)
+    // الكتابة تتطلب اشتراكاً فعّالاً
+    function canRead(stableId)       { return isAdmin() || isMember(stableId); }
+    function canWrite(stableId)      { return isMember(stableId) && isActive(stableId); }
+    function canOwnerWrite(stableId) { return isOwner(stableId) && isActive(stableId); }
+
+    // الحقول التي لا يغيّرها إلا أنت
+    function protectedStableFields() {
+      return ['status', 'subscriptionEnd', 'ownerUid', 'ownerEmail', 'createdAt', 'plan'];
+    }
+
+    // ── حسابات المشرفين: لا يكتبها أحد من التطبيق ─────────────
+    match /admins/{adminId} {
+      allow read: if signedIn() && uid() == adminId;
+      allow write: if false;
+    }
+
+    // ── ربط المستخدم بالإسطبل ───────────────────────────────
+    match /users/{userId} {
+      allow read: if signedIn() && (uid() == userId || isAdmin());
+      // يُنشأ مرة واحدة عند التسجيل، ولا يُغيَّر stableId بعدها
+      allow create: if signedIn() && uid() == userId
+                    && request.resource.data.keys().hasOnly(['stableId', 'name', 'email', 'createdAt'])
+                    && request.resource.data.stableId is string;
+      allow update: if signedIn() && uid() == userId
+                    && request.resource.data.stableId == resource.data.stableId
+                    && request.resource.data.keys().hasOnly(['stableId', 'name', 'email', 'createdAt']);
+      allow update, delete: if isAdmin();
+    }
+
+    // ── الإسطبل ─────────────────────────────────────────────
+    match /stables/{stableId} {
+      allow read: if canRead(stableId);
+
+      // التسجيل الجديد: يُنشأ "بانتظار التفعيل" فقط، بلا اشتراك
+      allow create: if signedIn()
+                    && request.resource.data.ownerUid == uid()
+                    && request.resource.data.status == 'pending'
+                    && !('subscriptionEnd' in request.resource.data)
+                    && request.resource.data.keys().hasOnly(['name', 'logoUrl', 'phone', 'ownerUid', 'ownerEmail', 'status', 'createdAt']);
+
+      // المالك يعدّل الاسم والشعار والهاتف فقط، لا الاشتراك
+      allow update: if isOwner(stableId)
+                    && !request.resource.data.diff(resource.data).affectedKeys().hasAny(protectedStableFields());
+
+      // أنت فقط: التفعيل والتجديد والإيقاف والحذف
+      allow update, delete: if isAdmin();
+
+      // ── الأعضاء ──
+      match /members/{memberId} {
+        allow read: if canRead(stableId);
+
+        // المالك يضيف نفسه عند إنشاء الإسطبل (في نفس الدفعة)
+        allow create: if signedIn() && memberId == uid()
+                      && request.resource.data.role == 'owner'
+                      && getAfter(/databases/$(database)/documents/stables/$(stableId)).data.ownerUid == uid();
+
+        // المالك يضيف موظفين ويعدّلهم ويحذفهم (لا يحذف نفسه ولا ينشئ مالكاً آخر)
+        allow create, update: if canOwnerWrite(stableId)
+                              && memberId != uid()
+                              && request.resource.data.role == 'staff';
+        allow delete: if canOwnerWrite(stableId) && memberId != uid();
+
+        allow write: if isAdmin();
+      }
+
+      // ── المتدربون ── (الموظف يضيف ويعدّل، والحذف للمالك)
+      match /trainees/{traineeId} {
+        allow read: if canRead(stableId);
+        allow create, update: if canWrite(stableId);
+        allow delete: if canOwnerWrite(stableId);
+
+        // الباقات = مال: للمالك فقط
+        match /packages/{packageId} {
+          allow read: if canRead(stableId);
+          allow write: if canOwnerWrite(stableId);
+        }
+
+        // الحضور: الموظف يسجّل، والحذف للمالك
+        match /attendance/{attendanceId} {
+          allow read: if canRead(stableId);
+          allow create, update: if canWrite(stableId);
+          allow delete: if canOwnerWrite(stableId);
+        }
+      }
+
+      // ── الإيواء ──
+      match /boarders/{boarderId} {
+        allow read: if canRead(stableId);
+        allow create, update: if canWrite(stableId);
+        allow delete: if canOwnerWrite(stableId);
+
+        match /payments/{paymentId} {
+          allow read: if canRead(stableId);
+          allow write: if canOwnerWrite(stableId);
+        }
+      }
+
+      // ── المواعيد ──
+      match /schedule/{scheduleId} {
+        allow read: if canRead(stableId);
+        allow create, update, delete: if canWrite(stableId);
+      }
+
+      // ── المصاريف: للمالك فقط، قراءةً وكتابة ──
+      match /expenses/{expenseId} {
+        allow read: if isAdmin() || isOwner(stableId);
+        allow write: if canOwnerWrite(stableId);
+      }
+    }
+
+    // أي مسار آخر: مغلق
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

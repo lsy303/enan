@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة المشرف | عِنان</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --navy:#0F1F33; --gold:#C9A15A; --paper:#F5F1E8; --ink:#1B2733; --muted:#6B6355; --green:#1F9254; --red:#E24B4A; --amber:#B7791F; }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Tajawal',sans-serif; background:var(--paper); color:var(--ink); min-height:100vh;}
+  header{background:var(--navy); color:#fff; padding:18px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px;}
+  header h1{font-family:'Cairo',sans-serif; font-weight:900; font-size:22px;}
+  header h1 span{color:var(--gold);}
+  header .who{font-size:13px; color:#8FA3BE;}
+  header button{background:rgba(255,255,255,0.08); color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:7px 12px; font-family:inherit; cursor:pointer;}
+  main{max-width:900px; margin:0 auto; padding:18px 16px 40px;}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:16px;}
+  .stat{background:#fff; border-radius:12px; padding:12px; box-shadow:0 2px 10px rgba(27,39,51,0.06);}
+  .stat .l{font-size:13px; color:var(--muted); font-weight:700;}
+  .stat .v{font-family:'Cairo'; font-weight:900; font-size:26px;}
+  .filters{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;}
+  .filters button{background:#fff; border:1px solid #E3D9C3; border-radius:20px; padding:6px 14px; font-family:inherit; font-weight:700; font-size:14px; cursor:pointer; color:var(--muted);}
+  .filters button.on{background:var(--navy); color:#fff; border-color:var(--navy);}
+  .search{width:100%; padding:11px 14px; border-radius:10px; border:1px solid #E3D9C3; font-family:inherit; font-size:15px; margin-bottom:12px; background:#fff;}
+  .card{background:#fff; border-radius:14px; padding:14px; margin-bottom:10px; box-shadow:0 2px 10px rgba(27,39,51,0.06);}
+  .row{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;}
+  .name{font-family:'Cairo'; font-weight:700; font-size:18px;}
+  .meta{font-size:13.5px; color:var(--muted); margin-top:3px; line-height:1.7;}
+  .meta a{color:var(--green); font-weight:700; text-decoration:none;}
+  .pill{font-size:12.5px; font-weight:700; padding:3px 10px; border-radius:20px; white-space:nowrap;}
+  .pill.pending{background:#FFF1D6; color:var(--amber);} .pill.active{background:#E2F4EA; color:var(--green);}
+  .pill.expired{background:#FDECEC; color:var(--red);} .pill.suspended{background:#EEE; color:#555;}
+  .actions{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; padding-top:10px; border-top:1px dashed #E8E0CC;}
+  .actions button{border:none; border-radius:8px; padding:8px 12px; font-family:inherit; font-weight:700; font-size:14px; cursor:pointer; background:var(--paper); color:var(--ink);}
+  .actions .primary{background:var(--gold); color:var(--navy);}
+  .actions .danger{color:var(--red);}
+  .actions input{border:1px solid #E3D9C3; border-radius:8px; padding:6px 8px; font-family:inherit;}
+  .empty{text-align:center; color:var(--muted); padding:40px 0;}
+  .login{max-width:360px; margin:60px auto; background:#fff; border-radius:16px; padding:24px; display:none; flex-direction:column; gap:10px; box-shadow:0 2px 14px rgba(27,39,51,0.08);}
+  .login input{padding:12px; border:1px solid #E3D9C3; border-radius:10px; font-family:inherit; font-size:15px;}
+  .login button{padding:12px; border:none; border-radius:10px; background:var(--navy); color:#fff; font-family:'Cairo'; font-weight:700; font-size:16px; cursor:pointer;}
+  .msg{text-align:center; color:var(--muted); padding:30px 0;}
+  .err{color:var(--red); font-size:14px; min-height:18px;}
+  .toast{position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--navy); color:#fff; padding:11px 18px; border-radius:10px; font-weight:700; display:none; z-index:10;}
+  @media (max-width:640px){ .stats{grid-template-columns:repeat(2,1fr);} }
+</style>
+</head>
+<body>
+<header>
+  <div><h1>عِنان <span>· لوحة المشرف</span></h1><div class="who" id="who"></div></div>
+  <div style="display:flex; gap:6px;"><button onclick="location.href='app.html'">التطبيق</button><button id="outBtn" style="display:none">خروج</button></div>
+</header>
+
+<form class="login" id="login">
+  <b style="font-family:'Cairo'; font-size:18px;">دخول المشرف</b>
+  <input id="em" type="email" placeholder="البريد الإلكتروني" dir="ltr" required>
+  <input id="pw" type="password" placeholder="كلمة المرور" dir="ltr" required>
+  <button type="submit">دخول</button>
+  <div class="err" id="loginErr"></div>
+</form>
+
+<main id="main" style="display:none">
+  <div class="stats" id="stats"></div>
+  <div class="filters" id="filters"></div>
+  <input class="search" id="q" placeholder="بحث بالاسم أو البريد أو الهاتف…">
+  <div id="list"><div class="msg">جارٍ التحميل…</div></div>
+</main>
+<div class="msg" id="status">جارٍ التحميل…</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+const V = '10.14.1';
+const [FA, AU, FS] = await Promise.all([
+  import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`),
+  import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`),
+  import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`),
+]);
+const app = FA.initializeApp({
+  apiKey: "AIzaSyCxrrLH6PBaQai8P4OCwhbMkv_qpnMoYUA",
+  authDomain: "enan-app-1c6e7.firebaseapp.com",
+  projectId: "enan-app-1c6e7",
+  storageBucket: "enan-app-1c6e7.firebasestorage.app",
+  messagingSenderId: "289689802075",
+  appId: "1:289689802075:web:9c58fb8d9d3a48366e767e"
+});
+const auth = AU.getAuth(app), db = FS.getFirestore(app);
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const toast = (m) => { const t = $('toast'); t.textContent = m; t.style.display = 'block'; clearTimeout(t._h); t._h = setTimeout(() => t.style.display = 'none', 3000); };
+const fmt = (d) => d ? d.toLocaleDateString('ar-BH', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
+const DAY = 864e5;
+
+let STABLES = [], filter = 'all';
+const LABEL = { all: 'الكل', pending: 'بانتظار التفعيل', active: 'فعّال', expiring: 'ينتهي قريبًا', expired: 'منتهٍ', suspended: 'موقوف' };
+
+function stateOf(s) {
+  if (s.status === 'pending') return 'pending';
+  if (s.status === 'suspended') return 'suspended';
+  const end = s.subscriptionEnd?.toDate?.();
+  if (!end || end <= new Date()) return 'expired';
+  return 'active';
+}
+function daysLeft(s) { const end = s.subscriptionEnd?.toDate?.(); return end ? Math.ceil((end - new Date()) / DAY) : null; }
+
+async function load() {
+  const snap = await FS.getDocs(FS.collection(db, 'stables'));
+  STABLES = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+  render();
+}
+
+function render() {
+  const counts = { all: STABLES.length, pending: 0, active: 0, expiring: 0, expired: 0, suspended: 0 };
+  STABLES.forEach(s => { const st = stateOf(s); counts[st]++; if (st === 'active' && daysLeft(s) <= 14) counts.expiring++; });
+  $('stats').innerHTML = [['بانتظار التفعيل', counts.pending], ['فعّال', counts.active], ['ينتهي خلال 14 يومًا', counts.expiring], ['منتهٍ أو موقوف', counts.expired + counts.suspended]]
+    .map(([l, v]) => `<div class="stat"><div class="l">${l}</div><div class="v">${v}</div></div>`).join('');
+  $('filters').innerHTML = Object.keys(LABEL).map(k => `<button class="${k === filter ? 'on' : ''}" data-f="${k}">${LABEL[k]} (${counts[k]})</button>`).join('');
+
+  const q = $('q').value.trim().toLowerCase();
+  const rows = STABLES.filter(s => {
+    const st = stateOf(s);
+    if (filter === 'expiring') { if (!(st === 'active' && daysLeft(s) <= 14)) return false; }
+    else if (filter !== 'all' && st !== filter) return false;
+    return !q || [s.name, s.ownerEmail, s.phone].some(v => String(v || '').toLowerCase().includes(q));
+  });
+  if (!rows.length) { $('list').innerHTML = '<div class="empty">لا توجد إسطبلات في هذا التصنيف</div>'; return; }
+
+  $('list').innerHTML = rows.map(s => {
+    const st = stateOf(s), dl = daysLeft(s), end = s.subscriptionEnd?.toDate?.();
+    const phone = String(s.phone || '').replace(/[^\d]/g, '').replace(/^0+/, '');
+    const wa = phone ? (phone.length <= 8 ? '973' + phone : phone) : '';
+    const sub = st === 'active' ? `ساري حتى ${fmt(end)} · متبقٍّ ${dl} يومًا` : st === 'expired' && end ? `انتهى في ${fmt(end)}` : '';
+    return `<div class="card">
+      <div class="row">
+        <div>
+          <div class="name">${esc(s.name)}</div>
+          <div class="meta"><span dir="ltr">${esc(s.ownerEmail || '')}</span>${wa ? ` · <a href="https://wa.me/${wa}" target="_blank" rel="noopener" dir="ltr">${esc(s.phone)}</a>` : ''}<br>
+          سُجّل في ${fmt(s.createdAt?.toDate?.())}${sub ? ' · ' + sub : ''}</div>
+        </div>
+        <span class="pill ${st}">${LABEL[st]}</span>
+      </div>
+      <div class="actions">
+        ${st === 'pending' ? `<button class="primary" data-a="trial" data-id="${s.id}">تفعيل تجربة 14 يومًا</button>` : ''}
+        <button class="${st === 'pending' ? '' : 'primary'}" data-a="year" data-id="${s.id}">${st === 'active' ? 'تمديد سنة' : 'تفعيل سنة'}</button>
+        <button data-a="month" data-id="${s.id}">${st === 'active' ? 'تمديد شهر' : 'تفعيل شهر'}</button>
+        <input type="date" data-date="${s.id}" title="تاريخ انتهاء مخصص"><button data-a="date" data-id="${s.id}">تعيين</button>
+        ${st === 'suspended' ? '' : st !== 'pending' ? `<button class="danger" data-a="suspend" data-id="${s.id}">إيقاف</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function act(a, id) {
+  const s = STABLES.find(x => x.id === id); if (!s) return;
+  const now = new Date();
+  const curEnd = s.subscriptionEnd?.toDate?.();
+  const base = (stateOf(s) === 'active' && curEnd > now) ? curEnd : now;   // التمديد يضاف إلى المتبقي
+  let end;
+  if (a === 'trial') end = new Date(now.getTime() + 14 * DAY);
+  else if (a === 'month') { end = new Date(base); end.setMonth(end.getMonth() + 1); }
+  else if (a === 'year') { end = new Date(base); end.setFullYear(end.getFullYear() + 1); }
+  else if (a === 'date') {
+    const v = document.querySelector(`[data-date="${id}"]`).value;
+    if (!v) { toast('اختر التاريخ أولًا'); return; }
+    end = new Date(v + 'T23:59:59');
+  }
+  try {
+    if (a === 'suspend') {
+      if (!confirm(`إيقاف «${s.name}»؟ سيبقى بإمكانه الاطلاع على بياناته فقط.`)) return;
+      await FS.updateDoc(FS.doc(db, 'stables', id), { status: 'suspended' });
+      toast('تم إيقاف الحساب');
+    } else {
+      if (!confirm(`تفعيل «${s.name}» حتى ${fmt(end)}؟`)) return;
+      await FS.updateDoc(FS.doc(db, 'stables', id), { status: 'active', subscriptionEnd: FS.Timestamp.fromDate(end) });
+      toast('تم التفعيل حتى ' + fmt(end));
+    }
+    await load();
+  } catch (e) { console.error(e); toast('تعذّر التنفيذ: ' + (e.code === 'permission-denied' ? 'ليست لديك صلاحية' : 'خطأ غير متوقع')); }
+}
+
+document.addEventListener('click', (e) => {
+  const f = e.target.closest('[data-f]'); if (f) { filter = f.dataset.f; render(); return; }
+  const b = e.target.closest('[data-a]'); if (b) act(b.dataset.a, b.dataset.id);
+});
+$('q').addEventListener('input', render);
+$('outBtn').onclick = async () => { await AU.signOut(auth); location.reload(); };
+$('login').addEventListener('submit', async (e) => {
+  e.preventDefault(); $('loginErr').textContent = '';
+  try { await AU.signInWithEmailAndPassword(auth, $('em').value.trim(), $('pw').value); }
+  catch (err) { $('loginErr').textContent = 'البريد الإلكتروني أو كلمة المرور غير صحيحة'; }
+});
+
+AU.onAuthStateChanged(auth, async (user) => {
+  $('status').style.display = 'none';
+  if (!user) { $('login').style.display = 'flex'; $('main').style.display = 'none'; return; }
+  $('login').style.display = 'none';
+  let ok = false;
+  try { ok = (await FS.getDoc(FS.doc(db, 'admins', user.uid))).exists(); } catch (e) {}
+  if (!ok) {
+    $('status').style.display = 'block';
+    $('status').innerHTML = `هذا الحساب ليس حساب مشرف.<br><small dir="ltr">UID: ${esc(user.uid)}</small>`;
+    $('outBtn').style.display = 'inline-block'; return;
+  }
+  $('who').textContent = user.email; $('outBtn').style.display = 'inline-block';
+  $('main').style.display = 'block';
+  try { await load(); } catch (e) { console.error(e); $('list').innerHTML = '<div class="empty">تعذّر تحميل الإسطبلات</div>'; }
+});
+</script>
+</body>
+</html>
