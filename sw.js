@@ -1,8 +1,8 @@
 /* عِنان: يجعل التطبيق قابلًا للتثبيت، ويفتحه بسرعة حتى مع إنترنت ضعيف.
    لا يخزّن بيانات الإسطبل؛ Firebase يتولى حفظها ومزامنتها بنفسه. */
-const VERSION = 'enan-v1';
+const VERSION = 'enan-v2';
 const SHELL = [
-  './', './index.html', './app.html', './manifest.webmanifest',
+  './', './index.html', './app.html', './demo.html', './manifest.webmanifest',
   './icons/enan-192.png', './icons/enan-512.png', './icons/apple-touch-icon.png', './icons/favicon.png',
   './icons/suhub-lockup.png', './icons/suhub-lockup-white.png',
 ];

@@ -289,6 +289,10 @@
   @media print{ .suhub-dev{display:none !important;} }
   body.installed .install-only{display:none !important;}
   @media (display-mode: standalone){ .status-banner{padding-top:max(10px, env(safe-area-inset-top));} }
+  /* توقيع سُحُب في أسفل الصفحة على الجوال (القائمة الجانبية تنزل فوق المحتوى) */
+  .page-credit{display:none; color:#6B6355; margin:28px 0 10px;}
+  @media (max-width:860px){ .sidebar .suhub-dev{display:none !important;} .page-credit{display:flex;} }
+  .pill.out{background:rgba(226,75,74,0.85); color:#fff;}
 
 </style>
 </head>
@@ -315,7 +319,6 @@
       <button class="gate-btn" type="submit" id="loginBtn">دخول</button>
       <button class="gate-link" type="button" onclick="showGate('gateRegister')">ليس لديك حساب؟ سجّل إسطبلك</button>
       <button class="gate-link" type="button" onclick="window.EnanAPI && EnanAPI.resetPassword();">نسيت كلمة المرور</button>
-      <a class="gate-link" href="?demo">جرّب النسخة التجريبية</a>
       <button class="gate-link install-only" type="button" onclick="installApp()">📲 ثبّت التطبيق على جهازك</button>
     </form>
 
@@ -562,6 +565,7 @@
     <div id="reportsMain" style="display:none;">
       <div id="reportPreview"></div>
     </div>
+    <div class="suhub-dev page-credit">تطوير <img src="icons/suhub-lockup.png" alt="سُحُب" height="22"> · <a href="https://instagram.com/suhub.apps" target="_blank" rel="noopener" dir="ltr">@Suhub.apps</a></div>
   </div>
 </div>
 
@@ -668,7 +672,7 @@
 
 <script>
 let STABLE_NAME = 'عِنان';
-const DEMO = new URLSearchParams(location.search).has('demo');
+const DEMO = new URLSearchParams(location.search).has('demo') || document.documentElement.dataset.demo==='1';
 let ROLE = 'owner', READONLY = false;
 let DATA = { trainees: [], boarders: [], schedule: [], expenses: [], settings: {} };
 let currentId=null, currentBoarderId=null, viewMode='active', boarderViewMode='active', appSection='training', expenseFilter='all';
@@ -830,7 +834,7 @@ function renderTraineeList(){
     const rem=remainingHours(t); const low=rem<=2 && viewMode==='active';
     return `<div class="trainee-item ${t.id===currentId?'active':''}" onclick="selectTrainee('${t.id}')">
       <span class="name">${escapeHtml(t.name)}</span>
-      <span class="meta">${low&&t.phone?`<button class="wa-mini" onclick="event.stopPropagation(); sendWhatsAppReminder('${t.id}')">📱</button>`:''}<span>${rem} حصة</span><span class="pill ${low?'low':'ok'}">${low?'منخفض':(viewMode==='archived'?'مؤرشف':'جيد')}</span></span>
+      <span class="meta">${low&&t.phone?`<button class="wa-mini" onclick="event.stopPropagation(); sendWhatsAppReminder('${t.id}')">📱</button>`:''}<span>${rem} حصة</span><span class="pill ${rem<=0&&viewMode==='active'?'out':(low?'low':'ok')}">${rem<=0&&viewMode==='active'?'منتهية':(low?'منخفض':(viewMode==='archived'?'مؤرشف':'جيد'))}</span></span>
     </div>`;
   }).join('');
 }
@@ -1472,7 +1476,7 @@ startup();
 </script>
 <script type="module">
 /* ── عِنان: الاتصال بـ Firebase ── */
-const IS_DEMO = new URLSearchParams(location.search).has('demo');
+const IS_DEMO = new URLSearchParams(location.search).has('demo') || document.documentElement.dataset.demo === '1';
 if (!IS_DEMO) {
   const V = '10.14.1';
   let FA, AU, FS;

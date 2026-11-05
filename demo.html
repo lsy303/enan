@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-demo="1">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>النسخة التجريبية | عِنان</title>
+<meta name="theme-color" content="#0F1F33">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="عِنان">
+<meta name="application-name" content="عِنان">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --paper:#F5F1E8;
+    --paper-2:#FFFFFF;
+    --ink:#1B2733;
+    --leather:#8A6B35;
+    --leather-dark:#0F1F33;
+    --hunter:#1F9254;
+    --brass:#E3C88A;
+    --rust:#E24B4A;
+    --card-shadow: 0 2px 0 rgba(27,39,51,0.08), 0 8px 20px -8px rgba(27,39,51,0.20);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(201,161,90,0.08), transparent 60%),
+      var(--paper);
+    color:var(--ink);
+    font-family:'Tajawal', sans-serif;
+    min-height:100vh;
+  }
+  .app{display:flex; min-height:100vh;}
+  .sidebar{
+    width:300px; flex-shrink:0; background:var(--leather-dark); color:#E7ECF2;
+    padding:22px 16px; display:flex; flex-direction:column; gap:16px; position:relative; overflow:hidden;
+  }
+  .brand{font-family:'Cairo', sans-serif; font-weight:900; font-size:22px; display:flex; align-items:center; gap:10px;}
+  .brand .mark{width:34px;height:34px;flex-shrink:0;}
+  .brand small{display:block; font-family:'Tajawal'; font-weight:400; font-size:14px; color:#8FA3BE;}
+  .settings-btn{background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#E7ECF2; width:32px;height:32px; border-radius:8px; cursor:pointer; font-size:17px;}
+  .add-trainee-btn{background:var(--brass); color:var(--leather-dark); border:1.5px solid #FFFFFF; padding:11px 14px; border-radius:10px; font-family:'Cairo'; font-weight:700; font-size:16.5px; cursor:pointer;}
+  .add-trainee-btn:hover{background:var(--leather-dark); color:#FFFFFF;}
+  .list-tabs{display:flex; gap:6px;}
+  .tab-btn{flex:1; background:rgba(255,255,255,0.06); border:1.5px solid #FFFFFF; color:#8FA3BE; padding:7px 0; border-radius:9px; font-weight:700; font-size:14.5px; cursor:pointer;}
+  .tab-btn.active{background:var(--brass); color:var(--leather-dark); border-color:#FFFFFF;}
+  .section-tabs{display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:2px;}
+  .section-tab{background:rgba(201,161,90,0.08); border:1.5px solid #FFFFFF; color:#8FA3BE; padding:9px 0; border-radius:10px; font-family:'Cairo'; font-weight:700; font-size:14px; cursor:pointer;}
+  .section-tab.active{background:var(--brass); color:var(--leather-dark); border-color:#FFFFFF;}
+  #trainingSidebar,#boardingSidebar,#scheduleSidebar,#expensesSidebar{display:flex; flex-direction:column; gap:16px; flex:1; min-height:0;}
+  .search-box{background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:9px 12px; color:#E7ECF2; font-size:16px;}
+  .search-box::placeholder{color:#8FA3BE;}
+  .trainee-list{flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-top:4px;}
+  .trainee-item{background:rgba(255,255,255,0.05); border:1px solid transparent; border-radius:10px; padding:9px 12px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .trainee-item:hover{background:rgba(255,255,255,0.10);}
+  .trainee-item.active{background:rgba(201,161,90,0.16); border-color:var(--brass);}
+  .trainee-item .name{font-family:'Cairo'; font-weight:700; font-size:15.5px; color:#FFFFFF; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
+  .trainee-item .meta{display:flex; align-items:center; gap:6px; flex-shrink:0; font-size:13px; color:#8FA3BE;}
+  .pill{padding:2px 8px; border-radius:20px; font-size:12px; font-weight:700; white-space:nowrap;}
+  .pill.low{background:rgba(226,75,74,0.22); color:#F0B5AC;}
+  .pill.ok{background:rgba(31,146,84,0.22); color:#C7DDB4;}
+  .wa-mini{background:#3FA24A; border:none; color:#fff; width:20px; height:20px; border-radius:6px; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;}
+  .empty-list{color:#A69B87; font-size:15px; text-align:center; padding:24px 8px;}
+  .main{flex:1; padding:30px 34px; overflow-y:auto;}
+  .menu-wrap{position:relative;}
+  .tools-menu{display:none; position:absolute; top:calc(100% + 8px); left:0; min-width:230px; background:var(--paper-2); border:1px solid rgba(27,39,51,0.14); border-radius:12px; box-shadow:0 12px 30px -8px rgba(0,0,0,0.5); padding:8px; z-index:60; flex-direction:column;}
+  .tools-menu.show{display:flex;}
+  .menu-section-label{font-size:13px; font-weight:700; color:#A17F3E; text-transform:uppercase; padding:8px 12px 3px;}
+  .menu-item{background:transparent; border:none; color:var(--ink); text-align:right; padding:9px 12px; border-radius:8px; font-size:15.5px; cursor:pointer; width:100%; display:flex; align-items:center; gap:8px;}
+  .menu-item:hover{background:rgba(27,39,51,0.06);}
+  .toolbar-status{font-size:13.5px; color:#6B6355;}
+  .top-stats{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:26px;}
+  .stat-card{background:var(--paper-2); border-radius:14px; padding:16px 18px; box-shadow:var(--card-shadow); border:1px solid rgba(27,39,51,0.10);}
+  .stat-card .label{font-size:14.5px; color:var(--leather); font-weight:700;}
+  .stat-card .value{font-family:'Cairo'; font-weight:900; font-size:28px; margin-top:4px;}
+  .stat-card.warn .value{color:var(--rust);}
+  .welcome{display:flex; flex-direction:column; align-items:center; justify-content:center; height:60vh; text-align:center; color:var(--leather);}
+  .welcome .mark-big{width:90px; height:90px; opacity:.55; margin-bottom:14px;}
+  .welcome h2{font-family:'Cairo'; margin:0 0 6px;}
+  .welcome p{margin:0; color:#6B6355; max-width:360px;}
+  .trainee-panel{display:none; flex-direction:column; gap:22px;}
+  .trainee-panel.show{display:flex;}
+  .panel-header{display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; background:var(--paper-2); border-radius:16px; padding:22px 24px; box-shadow:var(--card-shadow); border:1px solid rgba(27,39,51,0.10);}
+  .panel-header h1{font-family:'Cairo'; font-weight:900; font-size:28px; margin:0 0 4px;}
+  .panel-header .sub{color:#6B6355; font-size:15.5px;}
+  .icon-btn{background:transparent; border:1.5px solid var(--leather); color:var(--leather); padding:8px 14px; border-radius:9px; font-weight:700; font-size:15.5px; cursor:pointer;}
+  .icon-btn:hover{background:var(--leather); color:#FFFFFF;}
+  .grid-2{display:grid; grid-template-columns: 1.1fr 1.5fr; gap:18px; align-items:start;}
+  .balance-card{background:var(--paper-2); border-radius:16px; padding:22px; box-shadow:var(--card-shadow); border:1px solid rgba(27,39,51,0.10); display:flex; flex-direction:column; align-items:center; gap:12px;}
+  .horseshoe-wrap{position:relative; width:190px; height:190px;}
+  .horseshoe-wrap svg{width:100%; height:100%;}
+  .hs-center{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; top:14px;}
+  .hs-center .num{font-family:'Cairo'; font-weight:900; font-size:36px;}
+  .hs-center .lbl{font-size:14px; color:#6B6355; margin-top:-2px;}
+  .balance-sub{display:flex; gap:18px; font-size:15px; color:#6B6355;}
+  .balance-sub b{color:var(--ink);}
+  .fee-row{width:100%; margin-top:6px; padding-top:14px; border-top:1px dashed rgba(27,39,51,0.16); display:flex; justify-content:space-between; align-items:center;}
+  .fee-status{font-family:'Cairo'; font-weight:700; font-size:16px;}
+  .fee-status.paid{color:var(--hunter);}
+  .fee-status.due{color:var(--rust);}
+  .small-btn{background:var(--hunter); color:#FFFFFF; border:none; padding:6px 12px; border-radius:8px; font-size:14.5px; font-weight:700; cursor:pointer;}
+  .small-btn.brass{background:var(--brass); color:var(--leather-dark);}
+  .right-col{display:flex; flex-direction:column; gap:16px;}
+  .action-card{background:var(--paper-2); border-radius:16px; padding:20px; box-shadow:var(--card-shadow); border:1px solid rgba(27,39,51,0.10);}
+  .action-card h3{font-family:'Cairo'; margin:0 0 12px; font-size:16px;}
+  .form-row{display:flex; gap:10px; flex-wrap:wrap;}
+  .form-row input, .form-row textarea, .form-row select{font-family:'Tajawal'; font-size:16px; padding:9px 12px; border-radius:9px; border:1.5px solid rgba(27,39,51,0.16); background:#F0E9D6; color:var(--ink); flex:1; min-width:120px;}
+  .form-row input:focus,.form-row select:focus{outline:none; border-color:var(--brass);}
+  .form-row button{background:var(--leather); color:#FFFFFF; border:none; padding:9px 18px; border-radius:9px; font-family:'Cairo'; font-weight:700; cursor:pointer; font-size:16px;}
+  .form-row button:hover{background:var(--leather-dark);}
+  .log-list{display:flex; flex-direction:column; max-height:340px; overflow-y:auto;}
+  .log-entry{display:flex; justify-content:space-between; align-items:center; padding:11px 4px; border-bottom:1px solid rgba(27,39,51,0.10); font-size:15.5px;}
+  .log-entry .date{font-weight:700; min-width:95px;}
+  .log-entry .note{color:#6B6355; flex:1; margin:0 10px; font-size:14.5px;}
+  .log-entry .hrs{font-weight:700; color:var(--leather);}
+  .log-entry .del{background:none; border:none; color:var(--rust); cursor:pointer; font-size:16px; opacity:.55;}
+  .empty-log{color:#A69B87; font-size:15px; text-align:center; padding:18px 0;}
+  .modal-overlay{position:fixed; inset:0; background:rgba(20,32,43,0.60); display:none; align-items:center; justify-content:center; z-index:50;}
+  .modal-overlay.show{display:flex;}
+  .modal{background:var(--paper-2); border-radius:16px; padding:26px; width:360px; max-width:90vw; box-shadow:0 20px 50px rgba(0,0,0,0.35);}
+  .modal h3{font-family:'Cairo'; margin:0 0 16px;}
+  .modal .form-row{flex-direction:column;}
+  .modal-actions{display:flex; gap:8px; margin-top:16px; justify-content:flex-end;}
+  .modal-actions button{padding:9px 16px; border-radius:9px; border:none; font-family:'Cairo'; font-weight:700; cursor:pointer; font-size:15.5px;}
+  .modal-actions .cancel{background:transparent; border:1.5px solid #6B6355; color:#6B6355;}
+  .modal-actions .confirm{background:var(--leather); color:#FFFFFF;}
+  #printArea{display:none;}
+  @media print{
+    body *{visibility:hidden;}
+    #printArea,#printArea *{visibility:visible;}
+    #printArea{display:block; position:absolute; top:0; right:0; left:0; padding:20px; background:#fff; color:#000;}
+    .print-header{display:flex; align-items:center; gap:14px; border-bottom:3px solid #C9A15A; padding-bottom:12px; margin-bottom:16px;}
+    .print-header h1{font-family:'Cairo'; font-size:22px; margin:0;}
+    .print-header .meta{font-size:13px; color:#555;}
+    .print-table{width:100%; border-collapse:collapse; font-size:13.5px; margin-bottom:18px;}
+    .print-table th,.print-table td{border:1px solid #8A6B35; padding:7px 9px; text-align:right;}
+    .print-table th{background:#0F1F33; color:#F5F1E8; font-weight:700;}
+    .print-table tr:nth-child(even) td{background:#FAF6EC;}
+    .print-section-title{font-family:'Cairo'; font-weight:700; font-size:15px; margin:16px 0 8px;}
+  }
+  .agenda-date-header{font-family:'Cairo'; font-weight:700; font-size:15.5px; color:var(--leather); margin:18px 0 8px;}
+  .schedule-card{background:var(--paper-2); border-radius:12px; padding:13px 16px; box-shadow:var(--card-shadow); border:1px solid rgba(27,39,51,0.10); display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;}
+  .schedule-card .who{font-family:'Cairo'; font-weight:700; font-size:16px;}
+  .schedule-card .when{font-size:14px; color:#6B6355;}
+  .sc-btn{border:none; border-radius:8px; width:32px; height:32px; cursor:pointer; font-size:15px;}
+  .sc-btn.done{background:var(--hunter); color:#fff;}
+  .sc-btn.cancel{background:transparent; border:1.5px solid var(--rust); color:var(--rust);}
+  .empty-agenda{color:#A69B87; font-size:15px; text-align:center; padding:30px 8px;}
+  .storage-note{font-size:11px; color:#8FA3BE; text-align:center; padding-top:10px; border-top:1px solid rgba(255,255,255,0.10); line-height:1.6;}
+  ::-webkit-scrollbar{width:7px;}
+  ::-webkit-scrollbar-thumb{background:rgba(27,39,51,0.20); border-radius:10px;}
+  @media (max-width:860px){
+    .app{flex-direction:column;}
+    .sidebar{width:100%;}
+    .trainee-list{max-height:38vh; overflow-y:auto;}
+    .grid-2{grid-template-columns:1fr;}
+    .top-stats{grid-template-columns:repeat(2,1fr);}
+    .main{padding:16px;}
+    .panel-header{padding:16px;}
+    .stat-card{padding:12px;}
+  }
+  @media (max-width:480px){
+    .panel-header h1{font-size:22px;}
+    .stat-card{padding:10px;}
+    .stat-card .label{font-size:12.5px;}
+    .stat-card .value{font-size:22px;}
+  }
+  /* demo banner */
+  .demo-banner{
+    background:#C9A15A; color:#0F1F33; text-align:center; font-weight:700; font-size:14.5px;
+    padding:10px 14px; display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap;
+  }
+  .demo-banner button{background:#0F1F33; color:#F5F1E8; border:none; padding:6px 14px; border-radius:8px; font-weight:700; cursor:pointer; font-size:13.5px;}
+  /* ── عِنان: الأوضاع والصلاحيات ── */
+  body.mode-demo .live-only{display:none !important;}
+  body:not(.mode-demo) .demo-only{display:none !important;}
+  body.role-staff .owner-only{display:none !important;}
+  body.readonly .rw-only{display:none !important;}
+  body:not(.is-admin) .admin-only{display:none !important;}
+  .demo-banner{display:none;}
+
+  /* ── شاشة الدخول ── */
+  .gate{position:fixed; inset:0; z-index:1000; display:none; flex-direction:column; align-items:center; justify-content:center; padding:24px 16px;
+    background:radial-gradient(900px 500px at 85% -8%, rgba(201,161,90,0.18), transparent 60%), radial-gradient(700px 500px at -10% 105%, rgba(201,161,90,0.10), transparent 55%), #0F1F33; overflow-y:auto;}
+  .gate.show{display:flex;}
+  .gate-card{width:100%; max-width:380px; background:rgba(255,255,255,0.04); border:1px solid rgba(201,161,90,0.3); border-radius:22px; padding:30px 24px 24px; text-align:center; color:#F5F1E8;}
+  .gate-logo{width:64px; height:64px; margin:0 auto 6px;}
+  .gate h1{font-family:'Cairo',sans-serif; font-weight:900; font-size:38px; margin:0; color:#fff; line-height:1.2;}
+  .gate-tag{color:#C9A15A; font-weight:700; font-size:16px; margin-bottom:22px;}
+  .gate-view{display:none; flex-direction:column; gap:10px;}
+  .gate-view.show{display:flex;}
+  .gate input{width:100%; padding:13px 14px; border-radius:12px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.06); color:#fff; font-family:'Tajawal',sans-serif; font-size:16px;}
+  .gate input::placeholder{color:#8FA3BE;}
+  .gate input:focus{outline:none; border-color:#C9A15A;}
+  .gate-btn{display:block; width:100%; padding:13px; border-radius:12px; border:none; background:#C9A15A; color:#0F1F33; font-family:'Cairo',sans-serif; font-weight:700; font-size:17px; cursor:pointer; text-decoration:none; margin-top:4px;}
+  .gate-btn:disabled{opacity:.6; cursor:wait;}
+  .gate-btn.wa{background:#1FA855; color:#fff;}
+  .gate-link{background:none; border:none; color:#B9C4D4; font-family:'Tajawal',sans-serif; font-size:15px; cursor:pointer; padding:6px; text-decoration:none;}
+  .gate-link:hover{color:#E3C88A;}
+  .gate-msg{font-size:16px; line-height:1.9; color:#E6EEF9; margin-bottom:8px;}
+  .gate-err{color:#FF8A89; font-size:14.5px; min-height:20px; margin-top:10px;}
+  .gate-foot{color:#5F7290; font-size:13px; margin-top:18px;}
+  .spinner{width:34px; height:34px; border:3px solid rgba(255,255,255,0.15); border-top-color:#C9A15A; border-radius:50%; margin:10px auto; animation:spin 0.9s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ── شريط الحالة والإشعارات ── */
+  .status-banner{display:none; background:#FDECEC; color:#8E2423; border-bottom:1px solid #F5C2C2; padding:10px 16px; text-align:center; font-weight:700; font-size:15px;}
+  .status-banner.warn{background:#FFF6E0; color:#7A5A12; border-color:#F0DDA8;}
+  .status-banner.show{display:block;}
+  .status-banner a{color:inherit; text-decoration:underline; margin-inline-start:6px;}
+  .toast{position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(20px); background:#0F1F33; color:#fff; padding:12px 20px; border-radius:12px; font-weight:700; font-size:15px; opacity:0; pointer-events:none; transition:all .25s ease; z-index:2000; max-width:90vw; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.3);}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  /* ── الموظفون ── */
+  .staff-row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; background:#F5F1E8; border-radius:10px; margin-bottom:6px; font-size:15px;}
+  .staff-row .r{font-size:12.5px; font-weight:700; padding:2px 8px; border-radius:20px; background:rgba(201,161,90,0.2); color:#8A6B35;}
+  .staff-row button{background:none; border:none; color:var(--rust); cursor:pointer; font-size:14px; font-weight:700;}
+  .modal .hint{font-size:13.5px; color:#6B6355; line-height:1.7; margin:2px 0 6px;}
+  .modal label.chk{display:flex; align-items:center; gap:8px; font-size:15px;}
+  .gate input[dir="ltr"]:placeholder-shown, .modal input[dir="ltr"]:placeholder-shown{direction:rtl; text-align:right;}
+
+  /* ── أقسام إضافية ── */
+  .section-tab .cnt{display:inline-block; min-width:20px; padding:0 6px; margin-inline-start:4px; border-radius:10px; background:var(--rust); color:#fff; font-size:12px; line-height:19px;}
+  #reportsSidebar,#remindersSidebar{display:flex; flex-direction:column; gap:12px; flex:1; min-height:0;}
+  .side-hint{font-size:13.5px; color:#8FA3BE; line-height:1.8;}
+  .rep-opts{display:flex; flex-direction:column; gap:8px; color:#E7ECF2; font-size:14.5px;}
+  .rep-opts label{display:flex; align-items:center; gap:8px; cursor:pointer;}
+  .rep-opts input[type=month]{padding:9px 10px; border-radius:9px; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.06); color:#fff; font-family:inherit; font-size:15px; color-scheme:dark;}
+  .rep-btns{display:flex; gap:8px;}
+  .rep-btns button{flex:1; padding:10px; border-radius:10px; border:1.5px solid #fff; font-family:'Cairo'; font-weight:700; font-size:14.5px; cursor:pointer; background:var(--brass); color:var(--leather-dark);}
+  .rep-btns button.alt{background:transparent; color:#E7ECF2;}
+
+  /* التقرير: نفس التنسيق للمعاينة والطباعة */
+  .rep{background:#fff; border-radius:16px; padding:22px; box-shadow:var(--card-shadow); color:#1B2733;}
+  .rep-head{display:flex; align-items:center; justify-content:space-between; gap:14px; border-bottom:3px solid #C9A15A; padding-bottom:12px; margin-bottom:16px; flex-wrap:wrap;}
+  .rep-head h1{font-family:'Cairo'; font-size:22px; margin:0;}
+  .rep-head .meta{font-size:13px; color:#6B6355; line-height:1.7;}
+  .rep-kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:6px;}
+  .rep-kpi{border:1px solid #E8DFC8; border-radius:10px; padding:10px;}
+  .rep-kpi .l{font-size:12.5px; color:#8A6B35; font-weight:700;}
+  .rep-kpi .v{font-family:'Cairo'; font-weight:900; font-size:19px;}
+  .rep-kpi.net .v{color:#1F9254;} .rep-kpi.neg .v{color:#E24B4A;}
+  .rep-title{font-family:'Cairo'; font-weight:700; font-size:16px; margin:18px 0 8px; color:#0F1F33;}
+  .rep-table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  .rep-table th,.rep-table td{border:1px solid #D9CBA8; padding:7px 9px; text-align:right;}
+  .rep-table th{background:#0F1F33; color:#F5F1E8; font-weight:700;}
+  .rep-table tr:nth-child(even) td{background:#FAF6EC;}
+  .rep-table tfoot td{font-weight:700; background:#F1E8D2 !important;}
+  .rep-table .ok{color:#1F9254; font-weight:700;} .rep-table .no{color:#E24B4A; font-weight:700;}
+  .rep-empty{color:#6B6355; font-size:14px; padding:6px 0;}
+  .rep-foot{margin-top:18px; padding-top:10px; border-top:1px dashed #D9CBA8; font-size:12px; color:#8A8070; display:flex; justify-content:space-between; align-items:center; gap:10px;}
+  .rep-foot img{height:18px; vertical-align:middle;}
+  @media (max-width:700px){ .rep{padding:14px;} .rep-kpis{grid-template-columns:repeat(2,1fr);} .rep-table{font-size:12.5px;} }
+  @media print{
+    @page{size:A4; margin:12mm;}
+    #printArea{padding:0 !important;}
+    #printArea .rep{box-shadow:none; padding:0; border-radius:0;}
+    .rep-table th{-webkit-print-color-adjust:exact; print-color-adjust:exact;}
+    .rep-table tr, .rep-kpi{break-inside:avoid;}
+    .rep-title{break-after:avoid;}
+  }
+
+  /* التذكيرات */
+  .rem-group{margin-bottom:18px;}
+  .rem-group h3{font-family:'Cairo'; font-size:17px; margin:0 0 8px; display:flex; align-items:center; gap:8px;}
+  .rem-group h3 .n{font-size:13px; background:#F1E8D2; color:#8A6B35; border-radius:12px; padding:1px 9px;}
+  .rem-row{display:flex; align-items:center; justify-content:space-between; gap:10px; background:#fff; border-radius:12px; padding:11px 14px; margin-bottom:6px; box-shadow:0 1px 0 rgba(27,39,51,.06), 0 4px 12px -6px rgba(27,39,51,.18);}
+  .rem-row .who{font-weight:700; font-size:16px;}
+  .rem-row .det{font-size:13.5px; color:#6B6355; margin-top:2px;}
+  .rem-row .last{font-size:12px; color:#1F9254; margin-top:2px;}
+  .rem-row .acts{display:flex; gap:6px; flex-shrink:0;}
+  .rem-row .wa{background:#1FA855; color:#fff; border:none; border-radius:9px; padding:8px 12px; font-family:'Cairo'; font-weight:700; font-size:14px; cursor:pointer; white-space:nowrap;}
+  .rem-row .go{background:#F5F1E8; color:#0F1F33; border:none; border-radius:9px; padding:8px 10px; font-weight:700; cursor:pointer;}
+  .rem-row .nophone{font-size:12.5px; color:#A0968A;}
+  .rem-ok{background:#E2F4EA; color:#1F7A47; border-radius:12px; padding:14px; font-weight:700; text-align:center;}
+
+  /* توقيع سُحُب */
+  .suhub-dev{display:flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap; color:#8FA3BE; font-size:13px; line-height:1; margin-top:10px;}
+  .suhub-dev img{display:inline-block; vertical-align:middle; height:22px; width:auto;}
+  .suhub-dev a{color:#3FA3E8; font-weight:700; text-decoration:none;}
+  @media print{ .suhub-dev{display:none !important;} }
+  body.installed .install-only{display:none !important;}
+  @media (display-mode: standalone){ .status-banner{padding-top:max(10px, env(safe-area-inset-top));} }
+  /* توقيع سُحُب في أسفل الصفحة على الجوال (القائمة الجانبية تنزل فوق المحتوى) */
+  .page-credit{display:none; color:#6B6355; margin:28px 0 10px;}
+  @media (max-width:860px){ .sidebar .suhub-dev{display:none !important;} .page-credit{display:flex;} }
+  .pill.out{background:rgba(226,75,74,0.85); color:#fff;}
+
+</style>
+</head>
+<body>
+
+<div id="gate" class="gate">
+  <div class="gate-card">
+    <svg class="gate-logo" viewBox="0 0 100 100"><g fill="#C9A15A">
+      <path d="M8,58 C6,52 10,46 16,44 C18,36 24,30 30,26 L32,10 L40,24 C48,22 55,26 58,32 C52,34 46,38 44,44 C40,48 34,50 28,50 C24,54 20,58 14,60 C11,60 9,60 8,58 Z"/>
+      <path d="M46,30 C54,28 62,32 66,40 C60,42 54,40 50,36 Z"/>
+      <path d="M50,38 C60,38 68,44 72,52 C64,52 56,48 52,44 Z"/>
+      <path d="M52,48 C64,50 74,58 78,68 C68,66 58,60 54,54 Z"/>
+      <path d="M52,60 C62,64 70,74 72,86 C62,80 54,72 50,64 Z"/>
+      <path d="M46,70 C52,78 56,88 54,98 C46,90 42,80 42,70 Z"/>
+    </g></svg>
+    <h1>عِنان</h1>
+    <div class="gate-tag">إسطبلك بيدك</div>
+
+    <div id="gateLoading" class="gate-view"><div class="spinner"></div><div class="gate-msg">جارٍ التحميل…</div></div>
+
+    <form id="gateLogin" class="gate-view" onsubmit="event.preventDefault(); window.EnanAPI && EnanAPI.login();">
+      <input id="loginEmail" type="email" placeholder="البريد الإلكتروني" autocomplete="username" dir="ltr" required>
+      <input id="loginPass" type="password" placeholder="كلمة المرور" autocomplete="current-password" dir="ltr" required>
+      <button class="gate-btn" type="submit" id="loginBtn">دخول</button>
+      <button class="gate-link" type="button" onclick="showGate('gateRegister')">ليس لديك حساب؟ سجّل إسطبلك</button>
+      <button class="gate-link" type="button" onclick="window.EnanAPI && EnanAPI.resetPassword();">نسيت كلمة المرور</button>
+      <button class="gate-link install-only" type="button" onclick="installApp()">📲 ثبّت التطبيق على جهازك</button>
+    </form>
+
+    <form id="gateRegister" class="gate-view" onsubmit="event.preventDefault(); window.EnanAPI && EnanAPI.register();">
+      <input id="regStable" placeholder="اسم الإسطبل" required>
+      <input id="regName" placeholder="اسمك" required>
+      <input id="regPhone" type="tel" placeholder="رقم الهاتف (واتساب)" dir="ltr" required>
+      <input id="regEmail" type="email" placeholder="البريد الإلكتروني" autocomplete="username" dir="ltr" required>
+      <input id="regPass" type="password" placeholder="كلمة المرور (6 أحرف على الأقل)" autocomplete="new-password" dir="ltr" minlength="6" required>
+      <button class="gate-btn" type="submit" id="regBtn">إنشاء الحساب</button>
+      <button class="gate-link" type="button" onclick="showGate('gateLogin')">لديك حساب؟ سجّل الدخول</button>
+    </form>
+
+    <div id="gatePending" class="gate-view">
+      <div class="gate-msg">⏳ تم استلام طلبك<br><b id="pendingStable"></b><br>حسابك قيد التفعيل، وسنتواصل معك قريبًا.</div>
+      <a class="gate-btn wa" id="pendingWa" target="_blank" rel="noopener">تواصل معنا عبر واتساب</a>
+      <button class="gate-link" type="button" onclick="window.EnanAPI && EnanAPI.logout();">تسجيل الخروج</button>
+    </div>
+
+    <div id="gateError" class="gate-view">
+      <div class="gate-msg" id="gateErrorMsg"></div>
+      <button class="gate-btn" type="button" onclick="location.reload()">إعادة المحاولة</button>
+      <button class="gate-link" type="button" onclick="window.EnanAPI && EnanAPI.logout();">تسجيل الخروج</button>
+    </div>
+
+    <div class="gate-err" id="gateFormErr"></div>
+  </div>
+  <div class="suhub-dev" style="margin-top:18px;">تطوير <img src="icons/suhub-lockup-white.png" alt="سُحُب" height="22"> · <a href="https://instagram.com/suhub.apps" target="_blank" rel="noopener" dir="ltr">@Suhub.apps</a></div>
+</div>
+<div id="statusBanner" class="status-banner"></div>
+<div id="toast" class="toast"></div>
+
+<div class="app">
+  <div class="sidebar">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 100 100"><g fill="#C9A15A">
+        <path d="M8,58 C6,52 10,46 16,44 C18,36 24,30 30,26 L32,10 L40,24 C48,22 55,26 58,32 C52,34 46,38 44,44 C40,48 34,50 28,50 C24,54 20,58 14,60 C11,60 9,60 8,58 Z"/>
+        <path d="M46,30 C54,28 62,32 66,40 C60,42 54,40 50,36 Z"/>
+        <path d="M50,38 C60,38 68,44 72,52 C64,52 56,48 52,44 Z"/>
+        <path d="M52,48 C64,50 74,58 78,68 C68,66 58,60 54,54 Z"/>
+        <path d="M52,60 C62,64 70,74 72,86 C62,80 54,72 50,64 Z"/>
+        <path d="M46,70 C52,78 56,88 54,98 C46,90 42,80 42,70 Z"/>
+      </g></svg>
+      <div style="flex:1;">
+        <span id="brandName">عِنان</span>
+        <small>متابعة حصص المتدربين وإيواء الخيول</small>
+      </div>
+      <div class="menu-wrap">
+        <button class="settings-btn" onclick="toggleToolsMenu()">⋮</button>
+        <div class="tools-menu" id="toolsMenu">
+          <div class="menu-section-label owner-only">التقارير</div>
+          <button class="menu-item owner-only" onclick="closeToolsMenu(); openReportModal();">📊 التقارير</button>
+          <div class="menu-section-label owner-only">الحفظ</div>
+          <button class="menu-item owner-only" onclick="closeToolsMenu(); downloadJsonBackup();">⬇ تنزيل نسخة احتياطية</button>
+          <button class="menu-item owner-only live-only rw-only" onclick="closeToolsMenu(); document.getElementById('importFile').click();">📥 استيراد نسخة احتياطية</button>
+          <button class="menu-item live-only" onclick="closeToolsMenu(); reloadFromServer();">🔄 تحديث البيانات</button>
+          <div class="menu-section-label owner-only live-only">الإسطبل</div>
+          <button class="menu-item owner-only live-only" onclick="closeToolsMenu(); openSettingsModal();">⚙️ إعدادات الإسطبل</button>
+          <button class="menu-item owner-only live-only rw-only" onclick="closeToolsMenu(); openStaffModal();">👥 الموظفون</button>
+          <a class="menu-item admin-only" href="admin.html" style="display:block;text-decoration:none;">🛡 لوحة المشرف</a>
+          <button class="menu-item install-only" onclick="closeToolsMenu(); installApp();">📲 ثبّت التطبيق على جهازك</button>
+          <button class="menu-item live-only" style="color:var(--rust);" onclick="closeToolsMenu(); window.EnanAPI && EnanAPI.logout();">🚪 تسجيل الخروج</button>
+          <button class="menu-item demo-only" onclick="closeToolsMenu(); resetDemo();">↺ إعادة تعيين البيانات التجريبية</button>
+          <div class="toolbar-status" id="toolbarStatus" style="padding:8px 12px 2px; text-align:right;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-tabs">
+      <button class="section-tab active" id="secTraining" onclick="setAppSection('training')">🐴 التدريب</button>
+      <button class="section-tab" id="secBoarding" onclick="setAppSection('boarding')">🏠 الإيواء</button>
+      <button class="section-tab" id="secSchedule" onclick="setAppSection('schedule')">📅 المواعيد</button>
+      <button class="section-tab owner-only" id="secExpenses" onclick="setAppSection('expenses')">💰 المصاريف</button>
+      <button class="section-tab" id="secReminders" onclick="setAppSection('reminders')">🔔 التذكيرات</button>
+      <button class="section-tab owner-only" id="secReports" onclick="setAppSection('reports')">📊 التقارير</button>
+    </div>
+
+    <div id="trainingSidebar">
+      <button class="add-trainee-btn rw-only" onclick="openAddTraineeModal()">+ إضافة متدرب جديد</button>
+      <div class="list-tabs">
+        <button class="tab-btn active" id="tabActive" onclick="setListView('active')">نشط</button>
+        <button class="tab-btn" id="tabArchived" onclick="setListView('archived')">مؤرشف</button>
+      </div>
+      <input class="search-box" id="searchBox" placeholder="بحث عن متدرب..." oninput="renderTraineeList()">
+      <div class="trainee-list" id="traineeList"></div>
+    </div>
+
+    <div id="boardingSidebar" style="display:none;">
+      <button class="add-trainee-btn rw-only" onclick="openAddBoarderModal()">+ إضافة نزيل جديد</button>
+      <div class="list-tabs">
+        <button class="tab-btn active" id="tabActiveB" onclick="setBoarderListView('active')">نشط</button>
+        <button class="tab-btn" id="tabArchivedB" onclick="setBoarderListView('archived')">مؤرشف</button>
+      </div>
+      <input class="search-box" id="searchBoxB" placeholder="بحث عن نزيل أو مالك..." oninput="renderBoarderList()">
+      <div class="trainee-list" id="boarderList"></div>
+    </div>
+
+    <div id="scheduleSidebar" style="display:none;">
+      <button class="add-trainee-btn rw-only" onclick="openAddScheduleModal()">+ إضافة موعد</button>
+      <div class="trainee-list" id="scheduleList"></div>
+    </div>
+
+    <div id="expensesSidebar" style="display:none;">
+      <button class="add-trainee-btn" onclick="setAppSection('expenses'); document.getElementById('expDesc').focus();">+ تسجيل مصروف</button>
+      <div class="list-tabs">
+        <button class="tab-btn active" id="expFilterAll" onclick="setExpenseFilter('all')">الكل</button>
+        <button class="tab-btn" id="expFilterFeed" onclick="setExpenseFilter('علف')">علف</button>
+        <button class="tab-btn" id="expFilterMed" onclick="setExpenseFilter('أدوية')">أدوية</button>
+      </div>
+      <div class="trainee-list" id="expensesList"></div>
+    </div>
+
+    <div id="remindersSidebar" style="display:none;">
+      <div class="side-hint">قائمة بمن يحتاج تذكيرًا الآن: الحصص المنتهية أو القليلة، والرسوم المستحقة، وإيواء هذا الشهر غير المدفوع.<br>اضغط «تذكير واتساب» لتفتح رسالة جاهزة يمكنك تعديلها قبل الإرسال.</div>
+    </div>
+
+    <div id="reportsSidebar" style="display:none;">
+      <div class="rep-opts">
+        <label style="display:block;">الشهر<br><input type="month" id="repMonth" onchange="renderReport()" style="width:100%; margin-top:6px;"></label>
+        <label><input type="checkbox" class="rep-sec" value="finance" checked onchange="renderReport()"> الملخص المالي</label>
+        <label><input type="checkbox" class="rep-sec" value="trainees" checked onchange="renderReport()"> أرصدة المتدربين</label>
+        <label><input type="checkbox" class="rep-sec" value="attendance" checked onchange="renderReport()"> سجل الحضور</label>
+        <label><input type="checkbox" class="rep-sec" value="boarding" checked onchange="renderReport()"> الإيواء</label>
+        <label><input type="checkbox" class="rep-sec" value="expenses" checked onchange="renderReport()"> المصاريف</label>
+      </div>
+      <div class="rep-btns"><button onclick="printReport()">🖨 طباعة / PDF</button><button class="alt" onclick="exportReportExcel()">Excel</button></div>
+    </div>
+
+    <div class="storage-note"><span class="live-only">🔒 بياناتك محفوظة بأمان في السحابة</span><span class="demo-only">🧪 نسخة تجريبية ببيانات وهمية</span><div id="userLine" class="live-only" style="margin-top:4px;opacity:.8;"></div><div class="suhub-dev">تطوير <img src="icons/suhub-lockup-white.png" alt="سُحُب" height="22"> · <a href="https://instagram.com/suhub.apps" target="_blank" rel="noopener" dir="ltr">@Suhub.apps</a></div></div>
+  </div>
+
+  <div class="main">
+    <div id="trainingMain">
+      <div class="top-stats" id="topStats"></div>
+      <div class="welcome" id="welcomeScreen">
+        <h2>اختر متدربًا من القائمة</h2>
+        <p>أو أضف متدربًا جديدًا لبدء تسجيل حضوره وحصصه المتبقية ورسومه.</p>
+      </div>
+      <div class="trainee-panel" id="traineePanel">
+        <div class="panel-header">
+          <div><h1 id="pTraineeName">—</h1><div class="sub" id="pTraineePhone">—</div></div>
+          <div class="menu-wrap">
+            <button class="icon-btn" onclick="togglePanelMenu('traineeActionsMenu')">⋮ خيارات</button>
+            <div class="tools-menu" id="traineeActionsMenu"></div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="balance-card">
+            <div class="horseshoe-wrap">
+              <svg viewBox="0 0 200 200">
+                <path d="M 30 150 A 70 70 0 1 1 170 150" fill="none" stroke="#E9DFC6" stroke-width="16" stroke-linecap="round"/>
+                <path id="hsProgress" d="M 30 150 A 70 70 0 1 1 170 150" fill="none" stroke="#C9A15A" stroke-width="16" stroke-linecap="round" stroke-dasharray="330" stroke-dashoffset="330"/>
+              </svg>
+              <div class="hs-center"><div class="num" id="hsNum">0</div><div class="lbl">حصة متبقية</div></div>
+            </div>
+            <div class="balance-sub"><div>مشترى: <b id="totalPurchased">0</b> حصة</div><div>مستخدم: <b id="totalUsed">0</b> حصة</div></div>
+            <div class="fee-row">
+              <div><div style="font-size:14px;color:#6B6355;">الرسوم المستحقة</div><div class="fee-status" id="feeStatusText">—</div></div>
+              <button class="small-btn brass owner-only rw-only" id="feeToggleBtn" onclick="toggleFeePaid()">تحديد كمدفوع</button>
+            </div>
+          </div>
+          <div class="right-col">
+            <div class="action-card rw-only">
+              <h3>تسجيل حضور جديد</h3>
+              <div class="form-row">
+                <input type="date" id="attDate">
+                <input type="time" id="attTime" style="max-width:120px;">
+                <input type="number" id="attHours" placeholder="عدد الحصص" step="1" min="1" style="max-width:130px;">
+                <input type="text" id="attNote" placeholder="ملاحظة (اختياري)">
+                <button onclick="addAttendance()">تسجيل</button>
+              </div>
+            </div>
+            <div class="action-card"><h3>سجل الحضور</h3><div class="log-list" id="logList"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="boardingMain" style="display:none;">
+      <div class="top-stats" id="boardingTopStats"></div>
+      <div class="welcome" id="boardingWelcomeScreen">
+        <h2>اختر نزيلًا من القائمة</h2>
+        <p>أو أضف نزيلًا جديدًا لتسجيل بيانات المالك والحصان ورسوم الإيواء الشهرية.</p>
+      </div>
+      <div class="trainee-panel" id="boarderPanel">
+        <div class="panel-header">
+          <div><h1 id="pHorseName">—</h1><div class="sub" id="pOwnerName">—</div></div>
+          <div class="menu-wrap">
+            <button class="icon-btn" onclick="togglePanelMenu('boarderActionsMenu')">⋮ خيارات</button>
+            <div class="tools-menu" id="boarderActionsMenu"></div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="balance-card">
+            <div style="font-size:14px; color:#6B6355; margin-bottom:4px;">الرسوم الشهرية</div>
+            <div style="font-family:'Cairo'; font-weight:900; font-size:34px;" id="bMonthlyFee">0 د.ب</div>
+            <div class="fee-row" style="border-top:none; margin-top:14px; padding-top:0;">
+              <div><div style="font-size:14px;color:#6B6355;">حالة هذا الشهر</div><div class="fee-status" id="bMonthStatusText">—</div></div>
+              <button class="small-btn brass owner-only rw-only" id="bPayBtn" onclick="recordBoardingPayment()">تسجيل دفعة الشهر</button>
+            </div>
+            <div style="width:100%; margin-top:14px; padding-top:14px; border-top:1px dashed rgba(27,39,51,0.16); font-size:15px; color:#6B6355;" id="pBoarderPhoneLine"></div>
+          </div>
+          <div class="right-col"><div class="action-card"><h3>سجل المدفوعات</h3><div class="log-list" id="paymentLogList"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="scheduleMain" style="display:none;">
+      <div class="top-stats" id="scheduleTopStats"></div>
+      <div id="scheduleAgenda"></div>
+    </div>
+
+    <div id="expensesMain" style="display:none;">
+      <div class="top-stats" id="expensesTopStats"></div>
+      <div class="grid-2">
+        <div class="action-card rw-only">
+          <h3>تسجيل مصروف جديد</h3>
+          <div class="form-row">
+            <input type="date" id="expDate">
+            <select id="expCategory">
+              <option value="علف">🌾 علف</option>
+              <option value="أدوية">💊 أدوية</option>
+              <option value="صيانة">🔧 صيانة</option>
+              <option value="رواتب">👤 رواتب</option>
+              <option value="أخرى">📦 أخرى</option>
+            </select>
+            <input type="text" id="expDesc" placeholder="وصف المصروف">
+            <input type="number" id="expAmount" placeholder="المبلغ (د.ب)" step="0.001" min="0">
+            <button onclick="addExpense()">تسجيل</button>
+          </div>
+        </div>
+        <div class="action-card">
+          <h3>سجل المصاريف</h3>
+          <div class="log-list" id="expensesLog"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="remindersMain" style="display:none;">
+      <div class="top-stats" id="remindersTopStats"></div>
+      <div id="remindersBody"></div>
+    </div>
+
+    <div id="reportsMain" style="display:none;">
+      <div id="reportPreview"></div>
+    </div>
+    <div class="suhub-dev page-credit">تطوير <img src="icons/suhub-lockup.png" alt="سُحُب" height="22"> · <a href="https://instagram.com/suhub.apps" target="_blank" rel="noopener" dir="ltr">@Suhub.apps</a></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addModal"><div class="modal"><h3>إضافة متدرب جديد</h3>
+  <div class="form-row">
+    <input type="text" id="newName" placeholder="اسم المتدرب">
+    <input type="text" id="newPhone" placeholder="رقم الهاتف (اختياري)">
+    <input type="number" id="newHours" class="owner-only" placeholder="عدد الحصص في الباقة" step="1" min="1">
+    <input type="number" id="newFee" class="owner-only" placeholder="قيمة الرسوم (د.ب)" step="0.5" min="0">
+  </div>
+  <div class="modal-actions"><button class="cancel" onclick="closeModal('addModal')">إلغاء</button><button class="confirm" onclick="submitAddTrainee()">إضافة</button></div>
+</div></div>
+
+<div class="modal-overlay" id="addBoarderModal"><div class="modal"><h3>إضافة نزيل إيواء جديد</h3>
+  <div class="form-row">
+    <input type="text" id="newOwnerName" placeholder="اسم مالك الخيل">
+    <input type="text" id="newHorseName" placeholder="اسم الخيل">
+    <input type="text" id="newOwnerPhone" placeholder="رقم الهاتف (اختياري)">
+    <input type="number" id="newMonthlyFee" placeholder="الرسوم الشهرية (د.ب)" step="0.5" min="0">
+  </div>
+  <div class="modal-actions"><button class="cancel" onclick="closeModal('addBoarderModal')">إلغاء</button><button class="confirm" onclick="submitAddBoarder()">إضافة</button></div>
+</div></div>
+
+<div class="modal-overlay" id="addScheduleModal"><div class="modal"><h3>إضافة موعد جديد</h3>
+  <div class="form-row">
+    <select id="schTrainee"></select>
+    <input type="date" id="schDate">
+    <input type="time" id="schTime">
+    <input type="number" id="schHours" placeholder="عدد الحصص" step="1" min="1" value="1">
+    <input type="text" id="schNote" placeholder="ملاحظة (اختياري)">
+  </div>
+  <div class="modal-actions"><button class="cancel" onclick="closeModal('addScheduleModal')">إلغاء</button><button class="confirm" onclick="submitAddSchedule()">إضافة الموعد</button></div>
+</div></div>
+
+<div class="modal-overlay" id="waModal"><div class="modal" style="width:400px;"><h3>تذكير واتساب</h3>
+  <div class="form-row">
+    <div style="font-size:14px; color:#6B6355; margin-bottom:2px;" id="waPhoneLabel">إلى: —</div>
+    <textarea id="waMessageBox" rows="7" style="width:100%; resize:vertical; font-size:15.5px;"></textarea>
+  </div>
+  <div class="modal-actions"><button class="cancel" onclick="closeModal('waModal')">إلغاء</button><button class="confirm" style="background:#3FA24A;" onclick="openWhatsAppWithEditedMessage()">📱 فتح واتساب وإرسال</button></div>
+</div></div>
+
+<div class="modal-overlay" id="reportModal"><div class="modal"><h3>تصدير تقرير شهري</h3>
+  <div class="form-row"><input type="month" id="reportMonth"></div>
+  <div class="modal-actions" style="justify-content:space-between;">
+    <button class="cancel" onclick="closeModal('reportModal')">إلغاء</button>
+    <div style="display:flex; gap:8px;">
+      <button class="confirm" style="background:var(--hunter);" onclick="printMonthlyReport()">طباعة / PDF</button>
+      <button class="confirm" onclick="exportMonthlyExcel()">تصدير Excel</button>
+    </div>
+  </div>
+</div></div>
+
+<div class="modal-overlay" id="packageModal"><div class="modal"><h3>باقة حصص جديدة</h3>
+  <div class="hint" id="packageFor"></div>
+  <div class="form-row">
+    <input type="number" id="pkgHours" placeholder="عدد الحصص" step="1" min="1">
+    <input type="number" id="pkgFee" placeholder="قيمة الرسوم (د.ب)" step="0.5" min="0">
+    <label class="chk"><input type="checkbox" id="pkgPaid"> تم الدفع</label>
+  </div>
+  <div class="modal-actions"><button class="cancel" onclick="closeModal('packageModal')">إلغاء</button><button class="confirm" onclick="submitPackage()">إضافة الباقة</button></div>
+</div></div>
+
+<div class="modal-overlay" id="settingsModal"><div class="modal"><h3>إعدادات الإسطبل</h3>
+  <div class="form-row">
+    <input type="text" id="setName" placeholder="اسم الإسطبل">
+    <input type="tel" id="setPhone" placeholder="رقم هاتف الإسطبل" dir="ltr">
+  </div>
+  <div class="hint">يظهر اسم الإسطبل في أعلى التطبيق وفي التقارير ورسائل واتساب.</div>
+  <div class="hint" id="subInfo"></div>
+  <div class="modal-actions"><button class="cancel" onclick="closeModal('settingsModal')">إلغاء</button><button class="confirm" onclick="submitSettings()">حفظ</button></div>
+</div></div>
+
+<div class="modal-overlay" id="staffModal"><div class="modal" style="width:440px;"><h3>الموظفون</h3>
+  <div id="staffList"><div class="hint">جارٍ التحميل…</div></div>
+  <h3 style="margin-top:16px; font-size:17px;">إضافة موظف</h3>
+  <div class="hint">يستطيع الموظف إضافة المتدربين وتسجيل الحضور والمواعيد، ولا يستطيع الحذف أو تعديل الرسوم أو الاطلاع على المصاريف.</div>
+  <div class="form-row">
+    <input type="text" id="staffName" placeholder="اسم الموظف">
+    <input type="email" id="staffEmail" placeholder="البريد الإلكتروني" dir="ltr">
+    <input type="text" id="staffPass" placeholder="كلمة مرور مؤقتة (6 أحرف على الأقل)" dir="ltr">
+  </div>
+  <div class="modal-actions"><button class="cancel" onclick="closeModal('staffModal')">إغلاق</button><button class="confirm" id="staffAddBtn" onclick="submitAddStaff()">إضافة الموظف</button></div>
+</div></div>
+
+<input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importBackup(this)">
+<div class="modal-overlay" id="installModal"><div class="modal" style="width:400px;"><h3>📲 ثبّت عِنان على جهازك</h3>
+  <div id="installIOS" class="hint" style="font-size:15px; color:#1B2733; line-height:2.1;">
+    <b>على الآيفون والآيباد (من متصفح Safari):</b><br>
+    1. اضغط زر المشاركة <span style="display:inline-block; border:1.5px solid #3478F6; color:#3478F6; border-radius:5px; padding:0 5px; font-weight:700;">⬆</span> أسفل الشاشة.<br>
+    2. اختر <b>«إضافة إلى الشاشة الرئيسية»</b>.<br>
+    3. اضغط <b>«إضافة»</b>، فتظهر أيقونة عِنان مع تطبيقاتك.
+  </div>
+  <div id="installOther" class="hint" style="font-size:15px; color:#1B2733; line-height:2.1;">
+    <b>على أندرويد (من متصفح Chrome):</b><br>
+    1. اضغط قائمة المتصفح <b>⋮</b> أعلى الشاشة.<br>
+    2. اختر <b>«تثبيت التطبيق»</b> أو <b>«إضافة إلى الشاشة الرئيسية»</b>.<br>
+    <b>على الكمبيوتر:</b> اضغط أيقونة التثبيت في شريط العنوان.
+  </div>
+  <div class="modal-actions"><button class="confirm" onclick="closeModal('installModal')">حسنًا</button></div>
+</div></div>
+
+<div id="printArea"></div>
+
+<script>
+let STABLE_NAME = 'عِنان';
+const DEMO = new URLSearchParams(location.search).has('demo') || document.documentElement.dataset.demo==='1';
+let ROLE = 'owner', READONLY = false;
+let DATA = { trainees: [], boarders: [], schedule: [], expenses: [], settings: {} };
+let currentId=null, currentBoarderId=null, viewMode='active', boarderViewMode='active', appSection='training', expenseFilter='all';
+const STORAGE_KEY = 'enan-demo-v1';
+
+function uid(){ return 't'+Date.now()+Math.random().toString(36).slice(2,7); }
+function localDateStr(d){ return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10); }
+function todayStr(){ return localDateStr(new Date()); }
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+function formatDate(d){ const p=d.split('-'); return `${p[2]}/${p[1]}/${p[0]}`; }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+function toggleToolsMenu(){ document.getElementById('toolsMenu').classList.toggle('show'); }
+function closeToolsMenu(){ document.getElementById('toolsMenu').classList.remove('show'); }
+function togglePanelMenu(id){ document.getElementById(id).classList.toggle('show'); }
+function closePanelMenu(id){ document.getElementById(id).classList.remove('show'); }
+document.addEventListener('click', e=>{
+  document.querySelectorAll('.tools-menu.show').forEach(m=>{ const w=m.closest('.menu-wrap'); if(w && !w.contains(e.target)) m.classList.remove('show'); });
+});
+
+/* البيانات التجريبية: كل التواريخ نسبةً لتاريخ اليوم، فيبدو العرض حيًّا دائمًا */
+function dOff(n){ const d=new Date(); d.setDate(d.getDate()+n); return localDateStr(d); }
+/* تاريخ داخل الشهر الحالي دائمًا، حتى تظهر الإحصائيات الشهرية بأرقام حقيقية */
+function inMonth(daysAgo){ return dOff(-Math.min(daysAgo, new Date().getDate()-1)); }
+function DEMO_DATA(){
+  const m=todayStr().slice(0,7);
+  return {
+    trainees:[
+      {id:'t1',name:'سارة أحمد',phone:'36612345',archived:false,packages:[{id:'p1',hours:10,fee:50,paid:true,date:inMonth(12)}],attendance:[
+        {id:'a1',date:dOff(-10),time:'16:00',hours:1,note:'تدريب قفز'},
+        {id:'a2',date:dOff(-7),time:'16:30',hours:1,note:''},
+        {id:'a3',date:dOff(-3),time:'17:00',hours:1,note:'تحسّن ملحوظ'}]},
+      {id:'t2',name:'محمد خالد',phone:'39987654',archived:false,packages:[{id:'p2',hours:8,fee:40,paid:false,date:inMonth(14)}],attendance:[
+        {id:'a4',date:dOff(-13),time:'18:00',hours:1,note:''},
+        {id:'a5',date:dOff(-11),time:'18:00',hours:1,note:''},
+        {id:'a6',date:dOff(-9),time:'18:00',hours:1,note:''},
+        {id:'a7',date:dOff(-6),time:'18:00',hours:1,note:''},
+        {id:'a8',date:dOff(-4),time:'18:00',hours:1,note:''},
+        {id:'a9',date:dOff(-1),time:'18:00',hours:1,note:''}]},
+      {id:'t3',name:'فاطمة العلي',phone:'33112233',archived:false,packages:[{id:'p3',hours:6,fee:35,paid:true,date:inMonth(5)}],attendance:[
+        {id:'a10',date:dOff(-2),time:'17:30',hours:1,note:'أول حصة'}]},
+      {id:'t4',name:'يوسف إبراهيم',phone:'34455667',archived:false,packages:[{id:'p4',hours:12,fee:55,paid:true,date:inMonth(8)}],attendance:[
+        {id:'a11',date:dOff(-6),time:'16:00',hours:1,note:''},
+        {id:'a12',date:dOff(-2),time:'16:00',hours:1,note:''}]}
+    ],
+    boarders:[
+      {id:'b1',ownerName:'عبدالله راشد',horseName:'الأصيل',phone:'36611111',monthlyFee:120,payments:[{id:'pm1',month:m,amount:120,paidDate:inMonth(4)}],archived:false},
+      {id:'b2',ownerName:'نورة سالم',horseName:'عنتر',phone:'39922222',monthlyFee:150,payments:[],archived:false}
+    ],
+    schedule:[
+      {id:'s1',traineeId:'t1',date:dOff(0),time:'17:00',hours:1,note:'جولة أساسيات',status:'scheduled'},
+      {id:'s2',traineeId:'t3',date:dOff(0),time:'19:00',hours:1,note:'',status:'scheduled'},
+      {id:'s3',traineeId:'t4',date:dOff(1),time:'16:00',hours:1,note:'',status:'scheduled'}
+    ],
+    expenses:[
+      {id:'e1',date:inMonth(12),category:'علف',description:'شعير وتبن للشهر',amount:85.500},
+      {id:'e2',date:inMonth(9),category:'أدوية',description:'أدوية ولقاحات دورية',amount:42.000},
+      {id:'e3',date:inMonth(5),category:'صيانة',description:'صيانة مضخة المياه',amount:25.000},
+      {id:'e4',date:inMonth(2),category:'رواتب',description:'راتب عامل الإسطبل',amount:150.000}
+    ],
+    settings:{}
+  };
+}
+
+function resetDemo(){
+  DATA = DEMO_DATA();
+  currentId=null; currentBoarderId=null;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
+  renderBrand(); renderAll(); renderBoarderTopStats(); renderBoarderList(); renderBoarderPanel(); renderSchedule(); renderExpenses();
+  setStatus('تم إعادة تعيين البيانات التجريبية ✓');
+}
+
+/* طبقة البيانات: التجريبي يحفظ على الجهاز، والحقيقي يُرسل التغييرات إلى Firebase */
+function normalizeData(){
+  ['trainees','boarders','schedule','expenses'].forEach(k=>{ if(!Array.isArray(DATA[k])) DATA[k]=[]; });
+  if(!DATA.settings) DATA.settings={};
+  const num=v=>{ const n=parseFloat(v); return isFinite(n)?n:0; };
+  DATA.trainees.forEach(t=>{
+    t.name=String(t.name||'—'); t.phone=String(t.phone||''); t.archived=!!t.archived;
+    t.packages=(t.packages||[]).map(p=>({...p, hours:num(p.hours), fee:num(p.fee), paid:!!p.paid, date:String(p.date||todayStr())}));
+    t.attendance=(t.attendance||[]).map(a=>({...a, hours:num(a.hours), date:String(a.date||todayStr()), time:a.time||'', note:a.note||''}));
+  });
+  DATA.boarders.forEach(b=>{
+    b.ownerName=String(b.ownerName||'—'); b.horseName=String(b.horseName||'—'); b.phone=String(b.phone||''); b.monthlyFee=num(b.monthlyFee); b.archived=!!b.archived;
+    b.payments=(b.payments||[]).map(p=>({...p, amount:num(p.amount), month:String(p.month||todayStr().slice(0,7)), paidDate:String(p.paidDate||todayStr())}));
+  });
+  DATA.schedule.forEach(s=>{ s.hours=num(s.hours)||1; s.status=s.status||'scheduled'; s.time=s.time||''; s.note=s.note||''; });
+  DATA.expenses.forEach(e=>{ e.amount=num(e.amount); e.date=String(e.date||todayStr()); e.category=e.category||'أخرى'; e.description=e.description||''; });
+}
+function setData(d){ DATA=d; normalizeData(); }
+function loadData(){
+  try{ const raw=localStorage.getItem(STORAGE_KEY); DATA = raw ? JSON.parse(raw) : DEMO_DATA(); }
+  catch(e){ DATA = DEMO_DATA(); }
+  normalizeData();
+}
+function saveData(){
+  if(typeof refreshSideViews==='function') refreshSideViews();
+  if(DEMO){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA)); }catch(e){} return; }
+  if(READONLY){ toast('الاشتراك غير فعّال، لذلك لا يمكن حفظ التعديلات'); return; }
+  if(window.EnanSync) window.EnanSync();
+}
+
+function setStatus(msg){ const el=document.getElementById('toolbarStatus'); if(el) el.textContent=msg; }
+function renderBrand(){ document.getElementById('brandName').textContent = STABLE_NAME; }
+
+function setAppSection(section){
+  appSection=section;
+  document.getElementById('secTraining').classList.toggle('active', section==='training');
+  document.getElementById('secBoarding').classList.toggle('active', section==='boarding');
+  document.getElementById('secSchedule').classList.toggle('active', section==='schedule');
+  document.getElementById('secExpenses').classList.toggle('active', section==='expenses');
+  document.getElementById('trainingSidebar').style.display = section==='training'?'flex':'none';
+  document.getElementById('boardingSidebar').style.display = section==='boarding'?'flex':'none';
+  document.getElementById('scheduleSidebar').style.display = section==='schedule'?'flex':'none';
+  document.getElementById('expensesSidebar').style.display = section==='expenses'?'flex':'none';
+  document.getElementById('trainingMain').style.display = section==='training'?'block':'none';
+  document.getElementById('boardingMain').style.display = section==='boarding'?'block':'none';
+  document.getElementById('scheduleMain').style.display = section==='schedule'?'block':'none';
+  document.getElementById('expensesMain').style.display = section==='expenses'?'block':'none';
+  if(section==='boarding'){ renderBoarderList(); renderBoarderTopStats(); }
+  else if(section==='schedule'){ renderSchedule(); }
+  else if(section==='expenses'){ renderExpenses(); }
+  else { renderTraineeList(); renderTopStats(); }
+}
+function setListView(mode){ viewMode=mode; document.getElementById('tabActive').classList.toggle('active',mode==='active'); document.getElementById('tabArchived').classList.toggle('active',mode==='archived'); renderTraineeList(); }
+function setBoarderListView(mode){ boarderViewMode=mode; document.getElementById('tabActiveB').classList.toggle('active',mode==='active'); document.getElementById('tabArchivedB').classList.toggle('active',mode==='archived'); renderBoarderList(); }
+
+function getTrainee(id){ return DATA.trainees.find(t=>t.id===id); }
+function remainingHours(t){ const p=t.packages.reduce((s,x)=>s+x.hours,0); const u=t.attendance.reduce((s,x)=>s+x.hours,0); return Math.round((p-u)*100)/100; }
+function totalPurchased(t){ return t.packages.reduce((s,p)=>s+p.hours,0); }
+function totalUsedHours(t){ return t.attendance.reduce((s,a)=>s+a.hours,0); }
+function feeDue(t){ const tf=t.packages.reduce((s,p)=>s+p.fee,0); const paid=t.packages.filter(p=>p.paid).reduce((s,p)=>s+p.fee,0); return Math.round((tf-paid)*100)/100; }
+
+function renderAll(){
+  renderTraineeList(); renderTopStats();
+  if(currentId && getTrainee(currentId)) renderTraineePanel();
+  else { currentId=null; document.getElementById('welcomeScreen').style.display='flex'; document.getElementById('traineePanel').classList.remove('show'); }
+}
+function monthlyIncome(m){ let t=0; DATA.trainees.forEach(tr=>tr.packages.forEach(p=>{ if(p.date.slice(0,7)===m) t+=p.fee; })); return Math.round(t*1000)/1000; }
+function monthlyTraineeCount(m){ const ids=new Set(); DATA.trainees.forEach(tr=>tr.packages.forEach(p=>{ if(p.date.slice(0,7)===m) ids.add(tr.id); })); return ids.size; }
+
+function renderTopStats(){
+  const active=DATA.trainees.filter(t=>!t.archived);
+  const low=active.filter(t=>remainingHours(t)<=2).length;
+  const cm=todayStr().slice(0,7);
+  document.getElementById('topStats').innerHTML=`
+    <div class="stat-card"><div class="label">إجمالي المتدربين</div><div class="value">${active.length}</div></div>
+    <div class="stat-card ${low>0?'warn':''}"><div class="label">رصيد منخفض (≤ 2 حصة)</div><div class="value">${low}</div></div>
+    <div class="stat-card"><div class="label">متدربون هذا الشهر</div><div class="value">${monthlyTraineeCount(cm)}</div></div>
+    <div class="stat-card"><div class="label">الدخل الشهري (د.ب)</div><div class="value">${monthlyIncome(cm).toFixed(3)}</div></div>`;
+}
+
+function renderTraineeList(){
+  const q=document.getElementById('searchBox').value.trim().toLowerCase();
+  const list=document.getElementById('traineeList');
+  const filtered=DATA.trainees.slice().filter(t=>viewMode==='archived'?!!t.archived:!t.archived)
+    .sort((a,b)=>a.name.localeCompare(b.name,'ar')).filter(t=>t.name.toLowerCase().includes(q));
+  if(filtered.length===0){ list.innerHTML=`<div class="empty-list">${viewMode==='archived'?'لا يوجد متدربون مؤرشفون':'لا يوجد متدربون بعد'}</div>`; return; }
+  list.innerHTML=filtered.map(t=>{
+    const rem=remainingHours(t); const low=rem<=2 && viewMode==='active';
+    return `<div class="trainee-item ${t.id===currentId?'active':''}" onclick="selectTrainee('${t.id}')">
+      <span class="name">${escapeHtml(t.name)}</span>
+      <span class="meta">${low&&t.phone?`<button class="wa-mini" onclick="event.stopPropagation(); sendWhatsAppReminder('${t.id}')">📱</button>`:''}<span>${rem} حصة</span><span class="pill ${rem<=0&&viewMode==='active'?'out':(low?'low':'ok')}">${rem<=0&&viewMode==='active'?'منتهية':(low?'منخفض':(viewMode==='archived'?'مؤرشف':'جيد'))}</span></span>
+    </div>`;
+  }).join('');
+}
+function selectTrainee(id){ currentId=id; renderAll(); }
+
+function renderTraineePanel(){
+  const t=getTrainee(currentId); if(!t) return;
+  document.getElementById('welcomeScreen').style.display='none';
+  document.getElementById('traineePanel').classList.add('show');
+  document.getElementById('pTraineeName').textContent=t.name;
+  document.getElementById('pTraineePhone').textContent=t.phone||'لا يوجد رقم هاتف مسجل';
+  const rem=remainingHours(t), purchased=totalPurchased(t), used=totalUsedHours(t);
+  const pct= purchased>0?Math.max(0,Math.min(1,rem/purchased)):0;
+  const off=330-(pct*330);
+  document.getElementById('hsNum').textContent=rem;
+  document.getElementById('hsProgress').style.strokeDashoffset=off;
+  document.getElementById('hsProgress').style.stroke= rem<=2?'#E24B4A':'#C9A15A';
+  document.getElementById('totalPurchased').textContent=purchased;
+  document.getElementById('totalUsed').textContent=used;
+  const due=feeDue(t); const feeEl=document.getElementById('feeStatusText'); const feeBtn=document.getElementById('feeToggleBtn');
+  if(due>0){ feeEl.textContent=due.toFixed(3)+' د.ب مستحقة'; feeEl.className='fee-status due'; feeBtn.style.display='inline-block'; }
+  else { feeEl.textContent='مدفوعة بالكامل'; feeEl.className='fee-status paid'; feeBtn.style.display='none'; }
+  document.getElementById('attDate').value=todayStr();
+  const logList=document.getElementById('logList');
+  const sorted=t.attendance.slice().sort((a,b)=>b.date.localeCompare(a.date));
+  logList.innerHTML= sorted.length? sorted.map(a=>`<div class="log-entry"><span class="date">${formatDate(a.date)}${a.time?' · '+a.time:''}</span><span class="note">${escapeHtml(a.note||'')}</span><span class="hrs">${a.hours} حصة</span><button class="del owner-only rw-only" onclick="deleteAttendance('${a.id}')">✕</button></div>`).join('') : `<div class="empty-log">لا يوجد سجل حضور بعد</div>`;
+  const actionsEl=document.getElementById('traineeActionsMenu');
+  actionsEl.innerHTML=`${t.phone?`<button class="menu-item" style="color:#3FA24A;" onclick="closePanelMenu('traineeActionsMenu'); sendWhatsAppReminder('${t.id}');">📱 تذكير واتساب</button>`:''}<button class="menu-item owner-only rw-only" onclick="closePanelMenu('traineeActionsMenu'); openPackageModal();">➕ باقة حصص جديدة</button><button class="menu-item rw-only" onclick="closePanelMenu('traineeActionsMenu'); openAddScheduleModal('${t.id}');">📅 حجز موعد</button><button class="menu-item rw-only" onclick="closePanelMenu('traineeActionsMenu'); toggleArchiveTrainee();">${t.archived?'↩ إلغاء الأرشفة':'📦 أرشفة'}</button><button class="menu-item owner-only rw-only" style="color:var(--rust);" onclick="closePanelMenu('traineeActionsMenu'); deleteTrainee();">🗑 حذف</button>`;
+}
+
+function openAddTraineeModal(){ ['newName','newPhone','newHours','newFee'].forEach(id=>document.getElementById(id).value=''); document.getElementById('addModal').classList.add('show'); }
+function submitAddTrainee(){
+  const name=document.getElementById('newName').value.trim();
+  if(!name){ alert('الرجاء إدخال اسم المتدرب'); return; }
+  const hours=parseFloat(document.getElementById('newHours').value)||0;
+  const fee=parseFloat(document.getElementById('newFee').value)||0;
+  const trainee={id:uid(), name, phone:document.getElementById('newPhone').value.trim(), packages: hours>0?[{id:uid(),hours,fee,paid:false,date:todayStr()}]:[], attendance:[]};
+  DATA.trainees.push(trainee); closeModal('addModal'); currentId=trainee.id; saveData(); renderAll();
+}
+function toggleFeePaid(){ const t=getTrainee(currentId); if(!t) return; t.packages.forEach(p=>p.paid=true); saveData(); renderAll(); }
+function addAttendance(){
+  const t=getTrainee(currentId); if(!t) return;
+  const hours=parseFloat(document.getElementById('attHours').value);
+  if(!hours||hours<=0){ alert('الرجاء إدخال عدد حصص صحيح'); return; }
+  t.attendance.push({id:uid(), date:document.getElementById('attDate').value||todayStr(), time:document.getElementById('attTime').value||'', hours, note:document.getElementById('attNote').value.trim()});
+  document.getElementById('attTime').value=''; document.getElementById('attHours').value=''; document.getElementById('attNote').value='';
+  saveData(); renderAll();
+}
+function deleteAttendance(id){ const t=getTrainee(currentId); if(!t) return; t.attendance=t.attendance.filter(a=>a.id!==id); saveData(); renderAll(); }
+function deleteTrainee(){ if(!confirm('حذف هذا المتدرب وكل سجلاته نهائيًا؟')) return; DATA.trainees=DATA.trainees.filter(x=>x.id!==currentId); currentId=null; saveData(); renderAll(); }
+
+function cleanPhoneForWhatsApp(phone){ let d=phone.replace(/[^\d]/g,''); d=d.replace(/^0+/,''); if(d.length<=8) d='973'+d; return d; }
+let waPendingPhone=null;
+function sendWhatsAppReminder(id){
+  const t=getTrainee(id); if(!t||!t.phone) return;
+  const msg=`مرحبًا ${t.name}،\nنود تذكيركم بأن رصيدكم من الحصص في ${STABLE_NAME} على وشك الانتهاء (المتبقي: ${remainingHours(t)} حصة فقط).\nيرجى التواصل معنا لتجديد الاشتراك.\nشكرًا لكم`;
+  waPendingPhone=cleanPhoneForWhatsApp(t.phone);
+  document.getElementById('waPhoneLabel').textContent='إلى: '+t.phone;
+  document.getElementById('waMessageBox').value=msg;
+  document.getElementById('waModal').classList.add('show');
+}
+function sendBoardingReminder(id){
+  const b=getBoarder(id); if(!b||!b.phone) return;
+  const msg=`مرحبًا ${b.ownerName}،\nرسوم إيواء الحصان "${b.horseName}" في ${STABLE_NAME} لهذا الشهر لم تصلنا بعد (${b.monthlyFee.toFixed(3)} د.ب).\nشكرًا لكم`;
+  waPendingPhone=cleanPhoneForWhatsApp(b.phone);
+  document.getElementById('waPhoneLabel').textContent='إلى: '+b.phone;
+  document.getElementById('waMessageBox').value=msg;
+  document.getElementById('waModal').classList.add('show');
+}
+function openWhatsAppWithEditedMessage(){
+  const msg=document.getElementById('waMessageBox').value.trim(); if(!msg) return;
+  window.open(`https://wa.me/${waPendingPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+  closeModal('waModal');
+}
+
+/* boarding */
+function getBoarder(id){ return DATA.boarders.find(b=>b.id===id); }
+function isPaidForMonth(b,m){ return b.payments.some(p=>p.month===m); }
+function monthlyBoardingIncome(m){ let t=0; DATA.boarders.forEach(b=>b.payments.forEach(p=>{ if(p.month===m) t+=p.amount; })); return Math.round(t*1000)/1000; }
+function renderBoarderTopStats(){
+  const active=DATA.boarders.filter(b=>!b.archived); const cm=todayStr().slice(0,7);
+  const overdue=active.filter(b=>!isPaidForMonth(b,cm)).length;
+  document.getElementById('boardingTopStats').innerHTML=`
+    <div class="stat-card"><div class="label">إجمالي النزلاء</div><div class="value">${active.length}</div></div>
+    <div class="stat-card ${overdue>0?'warn':''}"><div class="label">رسوم متأخرة هذا الشهر</div><div class="value">${overdue}</div></div>
+    <div class="stat-card"><div class="label">دخل الإيواء الشهري (د.ب)</div><div class="value">${monthlyBoardingIncome(cm).toFixed(3)}</div></div>`;
+}
+function renderBoarderList(){
+  const q=document.getElementById('searchBoxB').value.trim().toLowerCase();
+  const list=document.getElementById('boarderList'); const cm=todayStr().slice(0,7);
+  const filtered=DATA.boarders.slice().filter(b=>boarderViewMode==='archived'?!!b.archived:!b.archived)
+    .sort((a,b)=>a.horseName.localeCompare(b.horseName,'ar')).filter(b=>(b.horseName+' '+b.ownerName).toLowerCase().includes(q));
+  if(filtered.length===0){ list.innerHTML=`<div class="empty-list">${boarderViewMode==='archived'?'لا يوجد نزلاء مؤرشفون':'لا يوجد نزلاء بعد'}</div>`; return; }
+  list.innerHTML=filtered.map(b=>{
+    const overdue=boarderViewMode==='active' && !isPaidForMonth(b,cm);
+    return `<div class="trainee-item ${b.id===currentBoarderId?'active':''}" onclick="selectBoarder('${b.id}')">
+      <span class="name">${escapeHtml(b.horseName)}</span>
+      <span class="meta">${overdue&&b.phone?`<button class="wa-mini" onclick="event.stopPropagation(); sendBoardingReminder('${b.id}')">📱</button>`:''}<span>${escapeHtml(b.ownerName)}</span><span class="pill ${overdue?'low':'ok'}">${overdue?'متأخر':(boarderViewMode==='archived'?'مؤرشف':'مسدد')}</span></span>
+    </div>`;
+  }).join('');
+}
+function selectBoarder(id){ currentBoarderId=id; renderBoarderList(); renderBoarderPanel(); }
+function renderBoarderPanel(){
+  const b=getBoarder(currentBoarderId);
+  if(!b){ currentBoarderId=null; document.getElementById('boardingWelcomeScreen').style.display='flex'; document.getElementById('boarderPanel').classList.remove('show'); return; }
+  document.getElementById('boardingWelcomeScreen').style.display='none';
+  document.getElementById('boarderPanel').classList.add('show');
+  document.getElementById('pHorseName').textContent=b.horseName;
+  document.getElementById('pOwnerName').textContent='المالك: '+b.ownerName;
+  document.getElementById('pBoarderPhoneLine').textContent=b.phone?('الهاتف: '+b.phone):'لا يوجد رقم هاتف مسجل';
+  document.getElementById('bMonthlyFee').textContent=b.monthlyFee.toFixed(3)+' د.ب';
+  const cm=todayStr().slice(0,7); const paid=isPaidForMonth(b,cm);
+  const st=document.getElementById('bMonthStatusText'); const btn=document.getElementById('bPayBtn');
+  if(paid){ st.textContent='مدفوعة هذا الشهر'; st.className='fee-status paid'; btn.style.display='none'; }
+  else { st.textContent='مستحقة الآن'; st.className='fee-status due'; btn.style.display='inline-block'; }
+  const logList=document.getElementById('paymentLogList');
+  const sorted=b.payments.slice().sort((x,y)=>y.month.localeCompare(x.month));
+  logList.innerHTML= sorted.length? sorted.map(p=>`<div class="log-entry"><span class="date">${p.month}</span><span class="note">${formatDate(p.paidDate)}</span><span class="hrs">${p.amount.toFixed(3)} د.ب</span></div>`).join('') : `<div class="empty-log">لا يوجد سجل مدفوعات بعد</div>`;
+  document.getElementById('boarderActionsMenu').innerHTML = (b.phone?`<button class="menu-item" style="color:#3FA24A;" onclick="closePanelMenu('boarderActionsMenu'); sendBoardingReminder('${b.id}');">📱 تذكير واتساب</button>`:'') + `<button class="menu-item rw-only" onclick="closePanelMenu('boarderActionsMenu'); toggleArchiveBoarder();">${b.archived?'↩ إلغاء الأرشفة':'📦 أرشفة'}</button><button class="menu-item owner-only rw-only" style="color:var(--rust);" onclick="closePanelMenu('boarderActionsMenu'); deleteBoarder();">🗑 حذف</button>`;
+}
+function openAddBoarderModal(){ ['newOwnerName','newHorseName','newOwnerPhone','newMonthlyFee'].forEach(id=>document.getElementById(id).value=''); document.getElementById('addBoarderModal').classList.add('show'); }
+function submitAddBoarder(){
+  const ownerName=document.getElementById('newOwnerName').value.trim(); const horseName=document.getElementById('newHorseName').value.trim();
+  if(!ownerName||!horseName){ alert('الرجاء إدخال اسم المالك واسم الخيل'); return; }
+  const boarder={id:uid(), ownerName, horseName, phone:document.getElementById('newOwnerPhone').value.trim(), monthlyFee:parseFloat(document.getElementById('newMonthlyFee').value)||0, payments:[], archived:false};
+  DATA.boarders.push(boarder); closeModal('addBoarderModal'); currentBoarderId=boarder.id; saveData(); renderBoarderTopStats(); renderBoarderList(); renderBoarderPanel();
+}
+function recordBoardingPayment(){
+  const b=getBoarder(currentBoarderId); if(!b) return; const cm=todayStr().slice(0,7);
+  if(isPaidForMonth(b,cm)) return;
+  b.payments.push({id:uid(), month:cm, amount:b.monthlyFee, paidDate:todayStr()});
+  saveData(); renderBoarderTopStats(); renderBoarderList(); renderBoarderPanel();
+}
+
+/* schedule */
+function upcomingSchedule(){ return DATA.schedule.filter(s=>s.status==='scheduled').slice().sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)); }
+function scheduleDateLabel(d){ const today=todayStr(); const tmr=localDateStr(new Date(Date.now()+86400000)); if(d===today) return 'اليوم — '+formatDate(d); if(d===tmr) return 'غدًا — '+formatDate(d); if(d<today) return 'متأخر — '+formatDate(d); return formatDate(d); }
+function openAddScheduleModal(pre){
+  const active=DATA.trainees.filter(t=>!t.archived).sort((a,b)=>a.name.localeCompare(b.name,'ar'));
+  if(active.length===0){ alert('أضف متدربًا نشطًا أولًا'); return; }
+  const sel=document.getElementById('schTrainee'); sel.innerHTML=active.map(t=>`<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
+  if(pre) sel.value=pre;
+  document.getElementById('schDate').value=todayStr(); document.getElementById('schTime').value=''; document.getElementById('schHours').value=1; document.getElementById('schNote').value='';
+  document.getElementById('addScheduleModal').classList.add('show');
+}
+function submitAddSchedule(){
+  const traineeId=document.getElementById('schTrainee').value; const date=document.getElementById('schDate').value;
+  if(!traineeId||!date){ alert('اختر المتدرب والتاريخ'); return; }
+  DATA.schedule.push({id:uid(), traineeId, date, time:document.getElementById('schTime').value, hours:parseFloat(document.getElementById('schHours').value)||1, note:document.getElementById('schNote').value.trim(), status:'scheduled'});
+  closeModal('addScheduleModal'); saveData(); renderSchedule();
+}
+function completeSchedule(id){
+  const s=DATA.schedule.find(x=>x.id===id); if(!s) return;
+  const t=getTrainee(s.traineeId); if(!t) return;
+  t.attendance.push({id:uid(), date:s.date, time:s.time, hours:s.hours, note:s.note||'من موعد مجدول'});
+  DATA.schedule=DATA.schedule.filter(x=>x.id!==id); saveData(); renderSchedule(); if(currentId===t.id) renderAll();
+}
+function cancelSchedule(id){ DATA.schedule=DATA.schedule.filter(x=>x.id!==id); saveData(); renderSchedule(); }
+function renderSchedule(){
+  const upcoming=upcomingSchedule(); const today=todayStr();
+  document.getElementById('scheduleTopStats').innerHTML=`
+    <div class="stat-card"><div class="label">مواعيد اليوم</div><div class="value">${upcoming.filter(s=>s.date===today).length}</div></div>
+    <div class="stat-card"><div class="label">إجمالي المواعيد القادمة</div><div class="value">${upcoming.length}</div></div>
+    <div class="stat-card"><div class="label">—</div><div class="value">—</div></div>
+    <div class="stat-card"><div class="label">—</div><div class="value">—</div></div>`;
+  const sideEl=document.getElementById('scheduleList');
+  sideEl.innerHTML= upcoming.length? upcoming.map(s=>{ const t=getTrainee(s.traineeId); return `<div class="trainee-item" style="cursor:default;"><span class="name">${t?escapeHtml(t.name):'—'}</span><span class="meta">${scheduleDateLabel(s.date)}${s.time?' · '+s.time:''}</span></div>`; }).join('') : `<div class="empty-list">لا توجد مواعيد</div>`;
+  const agendaEl=document.getElementById('scheduleAgenda');
+  if(upcoming.length===0){ agendaEl.innerHTML=`<div class="empty-agenda">لا توجد مواعيد مجدولة حاليًا.</div>`; return; }
+  const groups={}; upcoming.forEach(s=>{ (groups[s.date]=groups[s.date]||[]).push(s); });
+  agendaEl.innerHTML=Object.keys(groups).sort().map(d=>{
+    const cards=groups[d].map(s=>{ const t=getTrainee(s.traineeId);
+      return `<div class="schedule-card"><div><div class="who">${t?escapeHtml(t.name):'—'}</div><div class="when">${s.time?s.time+' · ':''}${s.hours} حصة</div></div><div style="display:flex; gap:6px;"><button class="sc-btn done rw-only" onclick="completeSchedule('${s.id}')">✓</button><button class="sc-btn cancel rw-only" onclick="cancelSchedule('${s.id}')">✕</button></div></div>`;
+    }).join('');
+    return `<div class="agenda-date-header">${scheduleDateLabel(d)}</div>${cards}`;
+  }).join('');
+}
+
+/* expenses */
+const EXPENSE_CATEGORY_ICON = {'علف':'🌾','أدوية':'💊','صيانة':'🔧','رواتب':'👤','أخرى':'📦'};
+function setExpenseFilter(cat){
+  expenseFilter=cat;
+  document.getElementById('expFilterAll').classList.toggle('active', cat==='all');
+  document.getElementById('expFilterFeed').classList.toggle('active', cat==='علف');
+  document.getElementById('expFilterMed').classList.toggle('active', cat==='أدوية');
+  renderExpenses();
+}
+function monthlyExpenses(m){ return DATA.expenses.filter(e=>e.date.slice(0,7)===m); }
+function monthlyExpenseTotal(m){ return Math.round(monthlyExpenses(m).reduce((s,e)=>s+e.amount,0)*1000)/1000; }
+function topExpenseCategory(m){
+  const rows=monthlyExpenses(m); if(rows.length===0) return '—';
+  const byCat={}; rows.forEach(e=>{ byCat[e.category]=(byCat[e.category]||0)+e.amount; });
+  return Object.keys(byCat).sort((a,b)=>byCat[b]-byCat[a])[0];
+}
+function addExpense(){
+  const desc=document.getElementById('expDesc').value.trim();
+  const amount=parseFloat(document.getElementById('expAmount').value);
+  if(!amount||amount<=0){ alert('الرجاء إدخال مبلغ صحيح'); return; }
+  DATA.expenses.push({ id:uid(), date:document.getElementById('expDate').value||todayStr(), category:document.getElementById('expCategory').value, description:desc, amount });
+  document.getElementById('expDesc').value=''; document.getElementById('expAmount').value='';
+  saveData(); renderExpenses();
+}
+function deleteExpense(id){ DATA.expenses=DATA.expenses.filter(e=>e.id!==id); saveData(); renderExpenses(); }
+function renderExpenses(){
+  document.getElementById('expDate').value=document.getElementById('expDate').value||todayStr();
+  const cm=todayStr().slice(0,7);
+  const total=monthlyExpenseTotal(cm);
+  const topCat=topExpenseCategory(cm);
+  const allTimeTotal=Math.round(DATA.expenses.reduce((s,e)=>s+e.amount,0)*1000)/1000;
+  document.getElementById('expensesTopStats').innerHTML=`
+    <div class="stat-card"><div class="label">مصاريف هذا الشهر (د.ب)</div><div class="value">${total.toFixed(3)}</div></div>
+    <div class="stat-card"><div class="label">أعلى فئة هذا الشهر</div><div class="value" style="font-size:20px;">${EXPENSE_CATEGORY_ICON[topCat]||''} ${topCat}</div></div>
+    <div class="stat-card"><div class="label">عدد المصاريف المسجلة</div><div class="value">${DATA.expenses.length}</div></div>
+    <div class="stat-card"><div class="label">إجمالي كل الفترات (د.ب)</div><div class="value">${allTimeTotal.toFixed(3)}</div></div>`;
+
+  const filtered = DATA.expenses.slice()
+    .filter(e=> expenseFilter==='all' ? true : e.category===expenseFilter)
+    .sort((a,b)=>b.date.localeCompare(a.date));
+
+  const sideEl=document.getElementById('expensesList');
+  sideEl.innerHTML = filtered.length ? filtered.map(e=>`
+    <div class="trainee-item" style="cursor:default;">
+      <span class="name">${EXPENSE_CATEGORY_ICON[e.category]||''} ${escapeHtml(e.description||e.category)}</span>
+      <span class="meta">${e.amount.toFixed(3)} د.ب</span>
+    </div>`).join('') : `<div class="empty-list">لا توجد مصاريف مسجلة</div>`;
+
+  const logEl=document.getElementById('expensesLog');
+  logEl.innerHTML = filtered.length ? filtered.map(e=>`
+    <div class="log-entry">
+      <span class="date">${formatDate(e.date)}</span>
+      <span class="note">${EXPENSE_CATEGORY_ICON[e.category]||''} ${e.category}${e.description?' — '+escapeHtml(e.description):''}</span>
+      <span class="hrs">${e.amount.toFixed(3)} د.ب</span>
+      <button class="del owner-only rw-only" onclick="deleteExpense('${e.id}')">✕</button>
+    </div>`).join('') : `<div class="empty-log">لا يوجد سجل مصاريف بعد</div>`;
+}
+
+/* reports */
+function openReportModal(){ document.getElementById('reportMonth').value=new Date().toISOString().slice(0,7); document.getElementById('reportModal').classList.add('show'); }
+function getMonthlyAttendance(m){ const rows=[]; DATA.trainees.forEach(t=>t.attendance.forEach(a=>{ if(a.date.slice(0,7)===m) rows.push({traineeName:t.name, date:a.date, time:a.time||'', hours:a.hours, note:a.note||''}); })); rows.sort((x,y)=>x.date.localeCompare(y.date)); return rows; }
+function exportMonthlyExcel(){
+  const m=document.getElementById('reportMonth').value; if(!m) return;
+  const summary=DATA.trainees.map(t=>({'اسم المتدرب':t.name,'الحصص المتبقية':remainingHours(t),'الرسوم المستحقة':feeDue(t).toFixed(3)}));
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summary), 'ملخص المتدربين');
+  const expRows = monthlyExpenses(m).map(e=>({'التاريخ':e.date,'الفئة':e.category,'الوصف':e.description,'المبلغ (د.ب)':e.amount.toFixed(3)}));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(expRows.length?expRows:[{'التاريخ':'','الفئة':'لا توجد مصاريف مسجلة هذا الشهر','الوصف':'','المبلغ (د.ب)':''}]), 'مصاريف '+m);
+  XLSX.writeFile(wb, `تقرير_${STABLE_NAME}_${m}.xlsx`); closeModal('reportModal');
+}
+function printMonthlyReport(){
+  const m=document.getElementById('reportMonth').value; if(!m) return;
+  const attendance=getMonthlyAttendance(m);
+  const expRows=monthlyExpenses(m);
+  const expTotal=monthlyExpenseTotal(m);
+  const income=monthlyIncome(m)+monthlyBoardingIncome(m);
+  const net=Math.round((income-expTotal)*1000)/1000;
+  document.getElementById('printArea').innerHTML=`
+    <div class="print-header"><h1>${escapeHtml(STABLE_NAME)}</h1></div>
+    <div class="print-section-title">ملخص المتدربين</div>
+    <table class="print-table"><tr><th>الاسم</th><th>حصص متبقية</th><th>رسوم مستحقة</th></tr>
+    ${DATA.trainees.map(t=>`<tr><td>${escapeHtml(t.name)}</td><td>${remainingHours(t)}</td><td>${feeDue(t).toFixed(3)}</td></tr>`).join('')}</table>
+    <div class="print-section-title">سجل الحضور</div>
+    <table class="print-table"><tr><th>التاريخ</th><th>الاسم</th><th>الحصص</th></tr>
+    ${attendance.map(r=>`<tr><td>${formatDate(r.date)}</td><td>${escapeHtml(r.traineeName)}</td><td>${r.hours}</td></tr>`).join('')}</table>
+    <div class="print-section-title">مصاريف الاسطبل</div>
+    <table class="print-table"><tr><th>التاريخ</th><th>الفئة</th><th>الوصف</th><th>المبلغ (د.ب)</th></tr>
+    ${expRows.length?expRows.map(e=>`<tr><td>${formatDate(e.date)}</td><td>${escapeHtml(e.category)}</td><td>${escapeHtml(e.description||'')}</td><td>${e.amount.toFixed(3)}</td></tr>`).join(''):'<tr><td colspan="4">لا توجد مصاريف مسجلة هذا الشهر</td></tr>'}
+    <tr><td colspan="3" style="font-weight:700;">إجمالي المصاريف</td><td style="font-weight:700;">${expTotal.toFixed(3)}</td></tr>
+    <tr><td colspan="3" style="font-weight:700;">صافي الدخل (تدريب + إيواء − مصاريف)</td><td style="font-weight:700;">${net.toFixed(3)}</td></tr>
+    </table>`;
+  closeModal('reportModal'); setTimeout(()=>window.print(),150);
+}
+function downloadJsonBackup(){
+  const blob=new Blob([JSON.stringify(DATA,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`نسخة_${STABLE_NAME}_${todayStr()}.json`; a.click();
+}
+
+/* ── عِنان: الإقلاع، والإشعارات، والميزات الإضافية ── */
+let toastTimer=null;
+function toast(msg, ms){
+  const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'), ms||3500);
+}
+function showGate(id){
+  document.querySelectorAll('.gate-view').forEach(v=>v.classList.toggle('show', v.id===id));
+  document.getElementById('gate').classList.add('show');
+  document.getElementById('gateFormErr').textContent='';
+}
+function hideGate(){ document.getElementById('gate').classList.remove('show'); }
+function gateError(msg){ document.getElementById('gateErrorMsg').textContent=msg; showGate('gateError'); }
+function gateFormError(msg){ document.getElementById('gateFormErr').textContent=msg; }
+
+function setBanner(b){
+  const el=document.getElementById('statusBanner');
+  if(!b){ el.className='status-banner'; el.innerHTML=''; return; }
+  el.className='status-banner show'+(b.kind==='warn'?' warn':'');
+  el.innerHTML=escapeHtml(b.text)+(b.wa?` <a href="${b.wa}" target="_blank" rel="noopener">تواصل للتجديد</a>`:'');
+}
+
+function rerenderAllSections(){
+  renderBrand(); renderAll(); renderBoarderTopStats(); renderBoarderList(); renderBoarderPanel(); renderSchedule();
+  if(ROLE==='owner') renderExpenses();
+  refreshSideViews();
+}
+function bootApp(o){
+  STABLE_NAME=o.stableName||'عِنان'; ROLE=o.role||'owner'; READONLY=!!o.readonly;
+  document.body.classList.toggle('role-staff', ROLE==='staff');
+  document.body.classList.toggle('readonly', READONLY);
+  document.body.classList.toggle('is-admin', !!o.isAdmin);
+  document.title = STABLE_NAME + ' | عِنان';
+  const ul=document.getElementById('userLine'); if(ul) ul.textContent=(o.email||'')+(ROLE==='staff'?' · موظف':'');
+  setBanner(o.banner||null);
+  if(ROLE!=='owner' && appSection==='expenses') setAppSection('training');
+  rerenderAllSections();
+  hideGate();
+}
+function startup(){
+  document.body.classList.add(DEMO?'mode-demo':'mode-live');
+  if(DEMO){
+    loadData();
+    bootApp({stableName:'إسطبل الريّان', role:'owner', banner:{kind:'warn', text:'نسخة تجريبية ببيانات وهمية تُحفظ على جهازك فقط.', wa:'https://wa.me/97336777179?text='+encodeURIComponent('السلام عليكم، أرغب في الاشتراك في تطبيق «عِنان» لإسطبلي')}});
+    document.querySelector('#statusBanner a').textContent='اطلب نسختك';
+    return;
+  }
+  showGate('gateLoading');
+  setTimeout(()=>{ if(!window.EnanAPI) gateError('تعذّر الاتصال بالخادم. تحقق من اتصال الإنترنت ثم أعد المحاولة.'); }, 15000);
+}
+
+/* باقة حصص جديدة */
+function openPackageModal(){
+  const t=getTrainee(currentId); if(!t) return;
+  document.getElementById('packageFor').textContent='للمتدرب: '+t.name;
+  ['pkgHours','pkgFee'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pkgPaid').checked=false;
+  document.getElementById('packageModal').classList.add('show');
+}
+function submitPackage(){
+  const t=getTrainee(currentId); if(!t) return;
+  const hours=parseFloat(document.getElementById('pkgHours').value);
+  if(!hours||hours<=0){ alert('الرجاء إدخال عدد حصص صحيح'); return; }
+  const fee=parseFloat(document.getElementById('pkgFee').value)||0;
+  t.packages.push({id:uid(), hours, fee, paid:document.getElementById('pkgPaid').checked, date:todayStr()});
+  closeModal('packageModal'); saveData(); renderAll(); toast('تمت إضافة الباقة ✓');
+}
+
+/* الأرشفة والحذف */
+function toggleArchiveTrainee(){
+  const t=getTrainee(currentId); if(!t) return;
+  t.archived=!t.archived; saveData();
+  toast(t.archived?'تمت أرشفة المتدرب':'أُعيد المتدرب إلى القائمة النشطة');
+  setListView(t.archived?'archived':'active'); renderAll();
+}
+function toggleArchiveBoarder(){
+  const b=getBoarder(currentBoarderId); if(!b) return;
+  b.archived=!b.archived; saveData();
+  toast(b.archived?'تمت أرشفة النزيل':'أُعيد النزيل إلى القائمة النشطة');
+  setBoarderListView(b.archived?'archived':'active'); renderBoarderTopStats(); renderBoarderPanel();
+}
+function deleteBoarder(){
+  if(!confirm('حذف هذا النزيل وكل سجل مدفوعاته نهائيًا؟')) return;
+  DATA.boarders=DATA.boarders.filter(x=>x.id!==currentBoarderId); currentBoarderId=null;
+  saveData(); renderBoarderTopStats(); renderBoarderList(); renderBoarderPanel();
+}
+
+/* إعدادات الإسطبل */
+function openSettingsModal(){
+  const info=window.STABLE_INFO||{};
+  document.getElementById('setName').value=STABLE_NAME;
+  document.getElementById('setPhone').value=info.phone||'';
+  const end=info.subscriptionEnd && info.subscriptionEnd.toDate ? info.subscriptionEnd.toDate() : null;
+  document.getElementById('subInfo').textContent = end ? ('الاشتراك ساري حتى: '+end.toLocaleDateString('ar-BH-u-nu-latn',{year:'numeric',month:'long',day:'numeric'})) : '';
+  document.getElementById('settingsModal').classList.add('show');
+}
+async function submitSettings(){
+  const name=document.getElementById('setName').value.trim();
+  if(!name){ alert('الرجاء إدخال اسم الإسطبل'); return; }
+  try{ await EnanAPI.saveSettings(name, document.getElementById('setPhone').value.trim()); closeModal('settingsModal'); toast('تم حفظ الإعدادات ✓'); }
+  catch(e){ toast('تعذّر الحفظ: '+EnanAPI.errMsg(e)); }
+}
+
+/* الموظفون */
+function openStaffModal(){
+  ['staffName','staffEmail','staffPass'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('staffModal').classList.add('show'); renderStaffList();
+}
+async function renderStaffList(){
+  const el=document.getElementById('staffList');
+  try{
+    const list=await EnanAPI.listStaff();
+    el.innerHTML=list.map(m=>`<div class="staff-row"><div><b>${escapeHtml(m.name||'—')}</b><div style="font-size:13px;color:#6B6355;" dir="ltr">${escapeHtml(m.email||'')}</div></div>
+      ${m.role==='owner'?'<span class="r">المالك</span>':`<button onclick="removeStaff('${m.uid}')">إزالة</button>`}</div>`).join('');
+  }catch(e){ el.innerHTML='<div class="hint">تعذّر تحميل القائمة.</div>'; }
+}
+async function submitAddStaff(){
+  const name=document.getElementById('staffName').value.trim();
+  const email=document.getElementById('staffEmail').value.trim();
+  const pass=document.getElementById('staffPass').value;
+  if(!name||!email||pass.length<6){ alert('الرجاء إدخال الاسم والبريد وكلمة مرور من 6 أحرف على الأقل'); return; }
+  const btn=document.getElementById('staffAddBtn'); btn.disabled=true; btn.textContent='جارٍ الإضافة…';
+  try{
+    await EnanAPI.addStaff(name, email, pass);
+    ['staffName','staffEmail','staffPass'].forEach(id=>document.getElementById(id).value='');
+    toast('تمت إضافة الموظف ✓ أرسل له البريد وكلمة المرور ليسجّل الدخول', 5000); renderStaffList();
+  }catch(e){ alert('تعذّرت الإضافة: '+EnanAPI.errMsg(e)); }
+  finally{ btn.disabled=false; btn.textContent='إضافة الموظف'; }
+}
+async function removeStaff(uid){
+  if(!confirm('إزالة هذا الموظف؟ لن يتمكن من الدخول إلى بيانات الإسطبل بعد ذلك.')) return;
+  try{ await EnanAPI.removeStaff(uid); toast('تمت إزالة الموظف'); renderStaffList(); }
+  catch(e){ alert('تعذّرت الإزالة: '+EnanAPI.errMsg(e)); }
+}
+
+/* استيراد نسخة احتياطية (من النسخة القديمة أو من عِنان) */
+function importBackup(input){
+  const file=input.files && input.files[0]; input.value=''; if(!file) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    let d; try{ d=JSON.parse(r.result); }catch(e){ alert('الملف غير صالح: ليس نسخة احتياطية صحيحة'); return; }
+    if(!d || typeof d!=='object' || !['trainees','boarders','schedule','expenses'].some(k=>Array.isArray(d[k]))){ alert('الملف لا يحتوي على بيانات إسطبل'); return; }
+    const counts=['trainees','boarders','schedule','expenses'].map(k=>(d[k]||[]).length);
+    if(!confirm(`سيتم دمج: ${counts[0]} متدرب، ${counts[1]} نزيل، ${counts[2]} موعد، ${counts[3]} مصروف.\nالسجلات الموجودة بنفس المعرّف ستُستبدل. متابعة؟`)) return;
+    ['trainees','boarders','schedule','expenses'].forEach(k=>{
+      (d[k]||[]).forEach(item=>{
+        if(!item || typeof item!=='object') return;
+        if(!item.id) item.id=uid();
+        const i=DATA[k].findIndex(x=>x.id===item.id);
+        if(i>=0) DATA[k][i]=item; else DATA[k].push(item);
+      });
+    });
+    normalizeData();
+    DATA.trainees.forEach(t=>{ t.packages.forEach(p=>{ if(!p.id) p.id=uid(); }); t.attendance.forEach(a=>{ if(!a.id) a.id=uid(); }); });
+    DATA.boarders.forEach(b=>b.payments.forEach(p=>{ if(!p.id) p.id=uid(); }));
+    saveData(); rerenderAllSections(); toast('تم استيراد البيانات ✓');
+  };
+  r.readAsText(file);
+}
+function reloadFromServer(){ if(window.EnanAPI) EnanAPI.reload(); }
+
+/* ══ الأقسام: التدريب، الإيواء، المواعيد، المصاريف، التذكيرات، التقارير ══ */
+const SECTIONS = { training:'secTraining', boarding:'secBoarding', schedule:'secSchedule', expenses:'secExpenses', reminders:'secReminders', reports:'secReports' };
+function setAppSection(section){
+  if((section==='expenses'||section==='reports') && ROLE!=='owner') section='training';
+  appSection=section;
+  Object.keys(SECTIONS).forEach(k=>{
+    document.getElementById(SECTIONS[k]).classList.toggle('active', k===section);
+    document.getElementById(k+'Sidebar').style.display = k===section?'flex':'none';
+    document.getElementById(k+'Main').style.display = k===section?'block':'none';
+  });
+  if(section==='boarding'){ renderBoarderList(); renderBoarderTopStats(); }
+  else if(section==='schedule'){ renderSchedule(); }
+  else if(section==='expenses'){ renderExpenses(); }
+  else if(section==='reminders'){ renderReminders(); }
+  else if(section==='reports'){ renderReport(); }
+  else { renderTraineeList(); renderTopStats(); }
+}
+function refreshSideViews(){
+  updateReminderBadge();
+  if(appSection==='reminders') renderReminders();
+  if(appSection==='reports') renderReport();
+}
+const NUM_LOCALE='ar-BH-u-nu-latn';
+function monthLabel(m){ return new Date(m+'-01T12:00:00').toLocaleDateString(NUM_LOCALE,{month:'long', year:'numeric'}); }
+const f3=n=>(Math.round(n*1000)/1000).toFixed(3);
+/* تمييز العدد: حصة واحدة، حصتان، 3–10 حصص، 11+ حصة */
+function hissa(n){ n=+n; if(n===1) return 'حصة واحدة'; if(n===2) return 'حصتان'; const i=Math.abs(n)%100; return `${n} ${(Number.isInteger(n)&&i>=3&&i<=10)?'حصص':'حصة'}`; }
+
+/* ══ التذكيرات ══ */
+function reminderLists(){
+  const cm=todayStr().slice(0,7);
+  const active=DATA.trainees.filter(t=>!t.archived);
+  return {
+    finished: active.filter(t=>t.packages.length && remainingHours(t)<=0).sort((a,b)=>a.name.localeCompare(b.name,'ar')),
+    low: active.filter(t=>{ const r=remainingHours(t); return r>0 && r<=2; }).sort((a,b)=>remainingHours(a)-remainingHours(b)),
+    fees: active.filter(t=>feeDue(t)>0).sort((a,b)=>feeDue(b)-feeDue(a)),
+    boarding: DATA.boarders.filter(b=>!b.archived && b.monthlyFee>0 && !isPaidForMonth(b,cm)).sort((a,b)=>a.horseName.localeCompare(b.horseName,'ar')),
+  };
+}
+function updateReminderBadge(){
+  const L=reminderLists(); const n=L.finished.length+L.low.length+L.boarding.length+(ROLE==='owner'?L.fees.length:0);
+  const el=document.getElementById('secReminders'); if(!el) return;
+  el.innerHTML='🔔 التذكيرات'+(n?`<span class="cnt">${n}</span>`:'');
+}
+function lastLine(x){ return x.lastReminder?`<div class="last">✓ آخر تذكير: ${formatDate(x.lastReminder)}</div>`:''; }
+function remRow(name, detail, item, kind, goto){
+  const wa = item.phone ? `<button class="wa" onclick="openReminder('${kind}','${item.id}')">📱 تذكير واتساب</button>` : `<span class="nophone">لا يوجد رقم</span>`;
+  return `<div class="rem-row"><div><div class="who">${escapeHtml(name)}</div><div class="det">${detail}</div>${lastLine(item)}</div><div class="acts">${wa}<button class="go" title="فتح" onclick="${goto}">↖</button></div></div>`;
+}
+function renderReminders(){
+  const L=reminderLists();
+  const owner=ROLE==='owner';
+  const totalFees=L.fees.reduce((s,t)=>s+feeDue(t),0);
+  const unpaidBoarding=L.boarding.reduce((s,b)=>s+b.monthlyFee,0);
+  document.getElementById('remindersTopStats').innerHTML=`
+    <div class="stat-card ${L.finished.length?'warn':''}"><div class="label">حصص منتهية</div><div class="value">${L.finished.length}</div></div>
+    <div class="stat-card ${L.low.length?'warn':''}"><div class="label">رصيد منخفض (≤ 2 حصة)</div><div class="value">${L.low.length}</div></div>
+    <div class="stat-card"><div class="label">${owner?'رسوم تدريب مستحقة (د.ب)':'رسوم تدريب مستحقة'}</div><div class="value">${owner?f3(totalFees):L.fees.length}</div></div>
+    <div class="stat-card ${L.boarding.length?'warn':''}"><div class="label">إيواء غير مدفوع هذا الشهر</div><div class="value">${L.boarding.length}</div></div>`;
+  const tGo=id=>`setAppSection('training'); setListView('active'); selectTrainee('${id}')`;
+  const bGo=id=>`setAppSection('boarding'); setBoarderListView('active'); selectBoarder('${id}')`;
+  const group=(title, rows, empty)=>`<div class="rem-group"><h3>${title} <span class="n">${rows.length}</span></h3>${rows.length?rows.join(''):`<div class="rep-empty">${empty}</div>`}</div>`;
+  const all=L.finished.length+L.low.length+L.boarding.length+(owner?L.fees.length:0);
+  document.getElementById('remindersBody').innerHTML = (all===0?`<div class="rem-ok">✓ لا توجد تذكيرات معلّقة. كل شيء على ما يرام.</div>`:'') +
+    group('⛔ انتهت حصصهم', L.finished.map(t=>remRow(t.name, `استُخدمت ${hissa(totalUsedHours(t))} من أصل ${hissa(totalPurchased(t))}`, t, 'finished', tGo(t.id))), 'لا يوجد') +
+    group('⚠️ رصيد منخفض', L.low.map(t=>remRow(t.name, `المتبقي: ${hissa(remainingHours(t))}`, t, 'low', tGo(t.id))), 'لا يوجد') +
+    (owner? group('💳 رسوم تدريب مستحقة', L.fees.map(t=>remRow(t.name, `مستحق ${f3(feeDue(t))} د.ب`, t, 'fee', tGo(t.id))), 'لا يوجد') : '') +
+    group('🏠 إيواء غير مدفوع هذا الشهر', L.boarding.map(b=>remRow(`${b.horseName} · ${b.ownerName}`, `${f3(b.monthlyFee)} د.ب عن ${monthLabel(todayStr().slice(0,7))}`, b, 'boarding', bGo(b.id))), 'لا يوجد');
+}
+
+/* رسائل واتساب: نص جاهز حسب الحالة، يمكن تعديله قبل الإرسال */
+let waTarget=null;
+function reminderMessage(kind, x){
+  const S=STABLE_NAME;
+  if(kind==='finished') return `مرحبًا ${x.name}،\nنود إعلامكم بأن باقة حصصكم في ${S} قد انتهت (استُخدمت ${hissa(totalUsedHours(x))} من أصل ${hissa(totalPurchased(x))}).\nيسعدنا تجديد الباقة لمواصلة التدريب، ويمكنكم الرد على هذه الرسالة للحجز.\nشكرًا لكم`;
+  if(kind==='low') return `مرحبًا ${x.name}،\nنود تذكيركم بأن رصيدكم من الحصص في ${S} على وشك الانتهاء (المتبقي: ${hissa(remainingHours(x))} فقط).\nيرجى التواصل معنا لتجديد الباقة.\nشكرًا لكم`;
+  if(kind==='fee') return `مرحبًا ${x.name}،\nنود تذكيركم بوجود رسوم تدريب مستحقة في ${S} بقيمة ${f3(feeDue(x))} د.ب.\nشكرًا لتعاونكم`;
+  if(kind==='boarding') return `مرحبًا ${x.ownerName}،\nنود تذكيركم بأن رسوم إيواء الخيل «${x.horseName}» في ${S} عن شهر ${monthLabel(todayStr().slice(0,7))} لم تصلنا بعد (${f3(x.monthlyFee)} د.ب).\nشكرًا لكم`;
+  return '';
+}
+function openReminder(kind, id){
+  const x = kind==='boarding' ? getBoarder(id) : getTrainee(id);
+  if(!x || !x.phone) return;
+  waTarget={kind, id};
+  waPendingPhone=cleanPhoneForWhatsApp(x.phone);
+  document.getElementById('waPhoneLabel').textContent='إلى: '+x.phone;
+  document.getElementById('waMessageBox').value=reminderMessage(kind, x);
+  document.getElementById('waModal').classList.add('show');
+}
+function sendWhatsAppReminder(id){ const t=getTrainee(id); if(!t) return; openReminder(remainingHours(t)<=0?'finished':'low', id); }
+function sendBoardingReminder(id){ openReminder('boarding', id); }
+function openWhatsAppWithEditedMessage(){
+  const msg=document.getElementById('waMessageBox').value.trim(); if(!msg) return;
+  window.open(`https://wa.me/${waPendingPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+  closeModal('waModal');
+  if(waTarget && !READONLY){
+    const x = waTarget.kind==='boarding' ? getBoarder(waTarget.id) : getTrainee(waTarget.id);
+    if(x){ x.lastReminder=todayStr(); saveData(); }
+  }
+  waTarget=null;
+}
+
+/* ══ التقارير ══ */
+function repSections(){ return [...document.querySelectorAll('.rep-sec:checked')].map(x=>x.value); }
+function repMonth(){ const el=document.getElementById('repMonth'); if(!el.value) el.value=todayStr().slice(0,7); return el.value; }
+function monthlyCollected(m){ let t=0; DATA.trainees.forEach(tr=>tr.packages.forEach(p=>{ if(p.date.slice(0,7)===m && p.paid) t+=p.fee; })); return t; }
+
+function buildReport(m){
+  const secs=repSections();
+  const trainIncome=monthlyIncome(m), collected=monthlyCollected(m), boardIncome=monthlyBoardingIncome(m), exp=monthlyExpenseTotal(m);
+  const net=trainIncome+boardIncome-exp;
+  const att=getMonthlyAttendance(m);
+  const trainees=DATA.trainees.filter(t=>!t.archived).sort((a,b)=>a.name.localeCompare(b.name,'ar'));
+  const boarders=DATA.boarders.filter(b=>!b.archived).sort((a,b)=>a.horseName.localeCompare(b.horseName,'ar'));
+  const expRows=monthlyExpenses(m).slice().sort((a,b)=>a.date.localeCompare(b.date));
+  const now=new Date().toLocaleDateString(NUM_LOCALE,{year:'numeric',month:'long',day:'numeric'});
+  let h=`<div class="rep"><div class="rep-head"><div><h1>${escapeHtml(STABLE_NAME)}</h1><div class="meta">التقرير الشهري · ${monthLabel(m)}</div></div><div class="meta">تاريخ الإصدار: ${now}</div></div>`;
+
+  if(secs.includes('finance')){
+    const due=DATA.trainees.reduce((s,t)=>s+feeDue(t),0);
+    h+=`<div class="rep-title">الملخص المالي</div><div class="rep-kpis">
+      <div class="rep-kpi"><div class="l">دخل التدريب (باقات الشهر)</div><div class="v">${f3(trainIncome)}</div></div>
+      <div class="rep-kpi"><div class="l">دخل الإيواء المحصّل</div><div class="v">${f3(boardIncome)}</div></div>
+      <div class="rep-kpi"><div class="l">المصاريف</div><div class="v">${f3(exp)}</div></div>
+      <div class="rep-kpi ${net>=0?'net':'neg'}"><div class="l">صافي الدخل</div><div class="v">${f3(net)}</div></div>
+    </div><div class="rep-empty">المحصّل من باقات هذا الشهر: ${f3(collected)} د.ب · إجمالي رسوم التدريب المستحقة حاليًا: ${f3(due)} د.ب · المبالغ بالدينار البحريني</div>`;
+  }
+  if(secs.includes('trainees')){
+    h+=`<div class="rep-title">أرصدة المتدربين (${trainees.length})</div>`;
+    h+= trainees.length? `<table class="rep-table"><thead><tr><th>المتدرب</th><th>الهاتف</th><th>مشترى</th><th>مستخدم</th><th>متبقٍّ</th><th>حصص الشهر</th><th>رسوم مستحقة</th></tr></thead><tbody>${trainees.map(t=>{
+      const mh=t.attendance.filter(a=>a.date.slice(0,7)===m).reduce((s,a)=>s+a.hours,0), r=remainingHours(t), d=feeDue(t);
+      return `<tr><td>${escapeHtml(t.name)}</td><td dir="ltr" style="text-align:right">${escapeHtml(t.phone||'—')}</td><td>${totalPurchased(t)}</td><td>${totalUsedHours(t)}</td><td class="${r<=2?'no':''}">${r}</td><td>${mh}</td><td class="${d>0?'no':''}">${d>0?f3(d):'—'}</td></tr>`; }).join('')}</tbody></table>` : `<div class="rep-empty">لا يوجد متدربون</div>`;
+  }
+  if(secs.includes('attendance')){
+    const tot=att.reduce((s,a)=>s+a.hours,0);
+    h+=`<div class="rep-title">سجل الحضور (${att.length})</div>`;
+    h+= att.length? `<table class="rep-table"><thead><tr><th>التاريخ</th><th>الوقت</th><th>المتدرب</th><th>الحصص</th><th>ملاحظة</th></tr></thead><tbody>${att.map(a=>`<tr><td>${formatDate(a.date)}</td><td>${a.time||'—'}</td><td>${escapeHtml(a.traineeName)}</td><td>${a.hours}</td><td>${escapeHtml(a.note||'')}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="3">الإجمالي</td><td>${tot}</td><td></td></tr></tfoot></table>` : `<div class="rep-empty">لا يوجد حضور مسجّل في هذا الشهر</div>`;
+  }
+  if(secs.includes('boarding')){
+    h+=`<div class="rep-title">الإيواء (${boarders.length})</div>`;
+    h+= boarders.length? `<table class="rep-table"><thead><tr><th>الخيل</th><th>المالك</th><th>الهاتف</th><th>الرسوم الشهرية</th><th>حالة ${monthLabel(m)}</th></tr></thead><tbody>${boarders.map(b=>{ const p=b.payments.find(x=>x.month===m);
+      return `<tr><td>${escapeHtml(b.horseName)}</td><td>${escapeHtml(b.ownerName)}</td><td dir="ltr" style="text-align:right">${escapeHtml(b.phone||'—')}</td><td>${f3(b.monthlyFee)}</td><td class="${p?'ok':'no'}">${p?'مدفوع ('+formatDate(p.paidDate)+')':'غير مدفوع'}</td></tr>`; }).join('')}</tbody><tfoot><tr><td colspan="3">المحصّل</td><td colspan="2">${f3(boardIncome)} د.ب</td></tr></tfoot></table>` : `<div class="rep-empty">لا يوجد نزلاء</div>`;
+  }
+  if(secs.includes('expenses')){
+    const byCat={}; expRows.forEach(e=>byCat[e.category]=(byCat[e.category]||0)+e.amount);
+    h+=`<div class="rep-title">المصاريف (${expRows.length})</div>`;
+    h+= expRows.length? `<table class="rep-table"><thead><tr><th>التاريخ</th><th>الفئة</th><th>الوصف</th><th>المبلغ (د.ب)</th></tr></thead><tbody>${expRows.map(e=>`<tr><td>${formatDate(e.date)}</td><td>${escapeHtml(e.category)}</td><td>${escapeHtml(e.description||'')}</td><td>${f3(e.amount)}</td></tr>`).join('')}</tbody><tfoot>${Object.keys(byCat).sort((a,b)=>byCat[b]-byCat[a]).map(c=>`<tr><td colspan="3">${EXPENSE_CATEGORY_ICON[c]||''} ${escapeHtml(c)}</td><td>${f3(byCat[c])}</td></tr>`).join('')}<tr><td colspan="3">إجمالي المصاريف</td><td>${f3(exp)}</td></tr></tfoot></table>` : `<div class="rep-empty">لا توجد مصاريف مسجلة في هذا الشهر</div>`;
+  }
+  if(!secs.length) h+=`<div class="rep-empty">اختر قسمًا واحدًا على الأقل من القائمة.</div>`;
+  h+=`<div class="rep-foot"><span>أُعدّ بواسطة عِنان</span><span>تطوير سُحُب · @Suhub.apps</span></div></div>`;
+  return h;
+}
+function renderReport(){ if(ROLE!=='owner') return; document.getElementById('reportPreview').innerHTML=buildReport(repMonth()); }
+function printReport(){
+  const m=repMonth(); document.getElementById('printArea').innerHTML=buildReport(m);
+  const old=document.title; document.title=`تقرير ${STABLE_NAME} ${m}`;
+  setTimeout(()=>{ window.print(); document.title=old; },150);
+}
+function exportReportExcel(){
+  if(typeof XLSX==='undefined'){ alert('تعذّر تحميل أداة Excel. تحقق من اتصال الإنترنت ثم أعد المحاولة.'); return; }
+  const m=repMonth(), secs=repSections(), wb=XLSX.utils.book_new();
+  const add=(name, rows)=>{ const ws=XLSX.utils.json_to_sheet(rows.length?rows:[{'—':'لا توجد بيانات'}]); ws['!views']=[{RTL:true}]; XLSX.utils.book_append_sheet(wb, ws, name); };
+  if(secs.includes('finance')) add('الملخص المالي', [
+    {'البند':'دخل التدريب (باقات الشهر)','المبلغ (د.ب)':+f3(monthlyIncome(m))},
+    {'البند':'المحصّل من باقات الشهر','المبلغ (د.ب)':+f3(monthlyCollected(m))},
+    {'البند':'دخل الإيواء المحصّل','المبلغ (د.ب)':+f3(monthlyBoardingIncome(m))},
+    {'البند':'المصاريف','المبلغ (د.ب)':+f3(monthlyExpenseTotal(m))},
+    {'البند':'صافي الدخل','المبلغ (د.ب)':+f3(monthlyIncome(m)+monthlyBoardingIncome(m)-monthlyExpenseTotal(m))}]);
+  if(secs.includes('trainees')) add('المتدربون', DATA.trainees.filter(t=>!t.archived).map(t=>({'المتدرب':t.name,'الهاتف':t.phone,'مشترى':totalPurchased(t),'مستخدم':totalUsedHours(t),'متبقٍّ':remainingHours(t),'رسوم مستحقة (د.ب)':+f3(feeDue(t))})));
+  if(secs.includes('attendance')) add('الحضور', getMonthlyAttendance(m).map(a=>({'التاريخ':a.date,'الوقت':a.time,'المتدرب':a.traineeName,'الحصص':a.hours,'ملاحظة':a.note})));
+  if(secs.includes('boarding')) add('الإيواء', DATA.boarders.filter(b=>!b.archived).map(b=>{ const p=b.payments.find(x=>x.month===m); return {'الخيل':b.horseName,'المالك':b.ownerName,'الهاتف':b.phone,'الرسوم الشهرية (د.ب)':b.monthlyFee,'الحالة':p?'مدفوع':'غير مدفوع','تاريخ الدفع':p?p.paidDate:''}; }));
+  if(secs.includes('expenses')) add('المصاريف', monthlyExpenses(m).map(e=>({'التاريخ':e.date,'الفئة':e.category,'الوصف':e.description,'المبلغ (د.ب)':e.amount})));
+  if(!wb.SheetNames.length){ alert('اختر قسمًا واحدًا على الأقل'); return; }
+  XLSX.writeFile(wb, `تقرير_${STABLE_NAME}_${m}.xlsx`);
+}
+function openReportModal(){ setAppSection('reports'); }
+
+/* ══ التثبيت على الشاشة الرئيسية ══ */
+let deferredInstall=null;
+const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches || navigator.standalone===true;
+const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+function updateInstallUI(){ document.body.classList.toggle('installed', isStandalone()); }
+window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferredInstall=e; });
+window.addEventListener('appinstalled', ()=>{ deferredInstall=null; updateInstallUI(); toast('تم تثبيت عِنان على جهازك ✓'); });
+async function installApp(){
+  if(deferredInstall){
+    deferredInstall.prompt();
+    const r=await deferredInstall.userChoice.catch(()=>null);
+    deferredInstall=null;
+    if(r && r.outcome==='accepted') return;
+  }
+  document.getElementById('installIOS').style.display = isIOS() ? 'block' : 'none';
+  document.getElementById('installOther').style.display = isIOS() ? 'none' : 'block';
+  document.getElementById('installModal').classList.add('show');
+}
+if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost')){
+  window.addEventListener('load', ()=>navigator.serviceWorker.register('sw.js').catch(e=>console.warn('SW', e)));
+}
+updateInstallUI();
+
+startup();
+</script>
+<script type="module">
+/* ── عِنان: الاتصال بـ Firebase ── */
+const IS_DEMO = new URLSearchParams(location.search).has('demo') || document.documentElement.dataset.demo === '1';
+if (!IS_DEMO) {
+  const V = '10.14.1';
+  let FA, AU, FS;
+  try {
+    [FA, AU, FS] = await Promise.all([
+      import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`),
+      import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`),
+      import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`),
+    ]);
+  } catch (e) {
+    console.error(e);
+    gateError('تعذّر تحميل التطبيق. تحقق من اتصال الإنترنت ثم أعد المحاولة.');
+    throw e;
+  }
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCxrrLH6PBaQai8P4OCwhbMkv_qpnMoYUA",
+    authDomain: "enan-app-1c6e7.firebaseapp.com",
+    projectId: "enan-app-1c6e7",
+    storageBucket: "enan-app-1c6e7.firebasestorage.app",
+    messagingSenderId: "289689802075",
+    appId: "1:289689802075:web:9c58fb8d9d3a48366e767e"
+  };
+  const SUPPORT_WA = '97336777179';
+
+  const app = FA.initializeApp(firebaseConfig);
+  const auth = AU.getAuth(app);
+  auth.languageCode = 'ar';
+  let db;
+  try {
+    db = FS.initializeFirestore(app, { localCache: FS.persistentLocalCache({ tabManager: FS.persistentMultipleTabManager() }) });
+  } catch (e) { db = FS.getFirestore(app); }
+
+  let SID = null, MYROLE = null, lastFlat = new Map(), registering = false, hiddenAt = 0;
+
+  const MSG = {
+    'auth/invalid-credential': 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+    'auth/wrong-password': 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+    'auth/user-not-found': 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+    'auth/invalid-email': 'البريد الإلكتروني غير صالح',
+    'auth/missing-email': 'اكتب بريدك الإلكتروني أولًا',
+    'auth/email-already-in-use': 'هذا البريد مسجّل مسبقًا',
+    'auth/weak-password': 'كلمة المرور قصيرة (6 أحرف على الأقل)',
+    'auth/too-many-requests': 'محاولات كثيرة، حاول بعد قليل',
+    'auth/network-request-failed': 'تحقق من اتصال الإنترنت',
+    'auth/unauthorized-domain': 'هذا النطاق غير مُصرَّح له في إعدادات Firebase',
+    'permission-denied': 'ليست لديك صلاحية لهذا الإجراء',
+    'unavailable': 'تعذّر الاتصال بالخادم، تحقق من الإنترنت',
+  };
+  const errMsg = (e) => MSG[e && e.code] || 'حدث خطأ غير متوقع';
+
+  /* ── تحويل البيانات إلى مستندات، ومقارنة التغييرات ── */
+  const stable = (o) => JSON.stringify(o, Object.keys(o).sort());
+  function flatten(D) {
+    const m = new Map(), S = `stables/${SID}`;
+    for (const t of D.trainees) {
+      const { packages = [], attendance = [], ...rest } = t;
+      m.set(`${S}/trainees/${t.id}`, stable(rest));
+      for (const p of packages) m.set(`${S}/trainees/${t.id}/packages/${p.id}`, stable(p));
+      for (const a of attendance) m.set(`${S}/trainees/${t.id}/attendance/${a.id}`, stable(a));
+    }
+    for (const b of D.boarders) {
+      const { payments = [], ...rest } = b;
+      m.set(`${S}/boarders/${b.id}`, stable(rest));
+      for (const p of payments) m.set(`${S}/boarders/${b.id}/payments/${p.id}`, stable(p));
+    }
+    for (const s of D.schedule) m.set(`${S}/schedule/${s.id}`, stable(s));
+    if (MYROLE === 'owner') for (const e of D.expenses) m.set(`${S}/expenses/${e.id}`, stable(e));
+    return m;
+  }
+
+  window.EnanSync = () => {
+    if (!SID) return;
+    const next = flatten(DATA), ops = [];
+    for (const [p, v] of next) if (lastFlat.get(p) !== v) ops.push(['set', p, v]);
+    for (const p of lastFlat.keys()) if (!next.has(p)) ops.push(['del', p]);
+    if (!ops.length) return;
+    lastFlat = next;
+    setStatus('جارٍ الحفظ…');
+    const commits = [];
+    for (let i = 0; i < ops.length; i += 400) {
+      const b = FS.writeBatch(db);
+      for (const [k, p, v] of ops.slice(i, i + 400)) {
+        const ref = FS.doc(db, p);
+        if (k === 'set') b.set(ref, JSON.parse(v)); else b.delete(ref);
+      }
+      commits.push(b.commit());
+    }
+    Promise.all(commits)
+      .then(() => setStatus('تم الحفظ ✓'))
+      .catch(async (e) => {
+        console.error(e);
+        toast('تعذّر الحفظ: ' + errMsg(e), 5000);
+        await reload(true);
+      });
+  };
+
+  async function loadAll() {
+    const col = (...p) => FS.collection(db, 'stables', SID, ...p);
+    const get = async (c) => (await FS.getDocs(c)).docs.map(d => ({ ...d.data(), id: d.id }));
+    const [tr, bo, sc, ex] = await Promise.all([
+      get(col('trainees')), get(col('boarders')), get(col('schedule')),
+      MYROLE === 'owner' ? get(col('expenses')) : Promise.resolve([]),
+    ]);
+    await Promise.all([
+      ...tr.map(async t => { [t.packages, t.attendance] = await Promise.all([get(col('trainees', t.id, 'packages')), get(col('trainees', t.id, 'attendance'))]); }),
+      ...bo.map(async b => { b.payments = await get(col('boarders', b.id, 'payments')); }),
+    ]);
+    setData({ trainees: tr, boarders: bo, schedule: sc, expenses: ex, settings: {} });
+    lastFlat = flatten(DATA);
+  }
+
+  async function reload(silent) {
+    if (!SID) return;
+    try { await loadAll(); rerenderAllSections(); if (!silent) toast('تم تحديث البيانات ✓'); }
+    catch (e) { console.error(e); toast('تعذّر التحديث: ' + errMsg(e)); }
+  }
+
+  const waLink = (text) => `https://wa.me/${SUPPORT_WA}?text=${encodeURIComponent(text)}`;
+
+  /* ── الدخول إلى الإسطبل ── */
+  async function enter(user) {
+    showGate('gateLoading');
+    let isAdmin = false;
+    try { isAdmin = (await FS.getDoc(FS.doc(db, 'admins', user.uid))).exists(); } catch (e) {}
+
+    const u = await FS.getDoc(FS.doc(db, 'users', user.uid));
+    if (!u.exists()) {
+      if (isAdmin) { location.href = 'admin.html'; return; }
+      gateError('لم يُعثر على إسطبل مرتبط بهذا الحساب. تواصل معنا للمساعدة.'); return;
+    }
+    SID = u.data().stableId;
+
+    let st, mem;
+    try {
+      [st, mem] = await Promise.all([FS.getDoc(FS.doc(db, 'stables', SID)), FS.getDoc(FS.doc(db, 'stables', SID, 'members', user.uid))]);
+    } catch (e) {
+      if (e.code === 'permission-denied') { gateError('لم تعد لديك صلاحية الدخول إلى هذا الإسطبل. تواصل مع مالك الإسطبل.'); return; }
+      throw e;
+    }
+    if (!st.exists() || !mem.exists()) { gateError('لم تعد لديك صلاحية الدخول إلى هذا الإسطبل. تواصل مع مالك الإسطبل.'); return; }
+
+    const s = st.data(); MYROLE = mem.data().role;
+    window.STABLE_INFO = { id: SID, ...s };
+
+    if (s.status === 'pending') {
+      document.getElementById('pendingStable').textContent = s.name || '';
+      document.getElementById('pendingWa').href = waLink(`السلام عليكم، سجّلت إسطبل «${s.name}» في تطبيق عِنان وأرغب في تفعيل الحساب.`);
+      showGate('gatePending'); return;
+    }
+
+    const end = s.subscriptionEnd && s.subscriptionEnd.toDate ? s.subscriptionEnd.toDate() : null;
+    const active = s.status === 'active' && end && end > new Date();
+    await loadAll();
+
+    let banner = null;
+    const renew = waLink(`السلام عليكم، أرغب في تجديد اشتراك إسطبل «${s.name}» في تطبيق عِنان.`);
+    if (!active) {
+      banner = { kind: 'err', wa: MYROLE === 'owner' ? renew : null,
+        text: s.status === 'suspended'
+          ? 'الحساب موقوف مؤقتًا. يمكنك الاطلاع على بياناتك وتصديرها فقط.'
+          : 'انتهى الاشتراك. يمكنك الاطلاع على بياناتك وتصديرها فقط حتى التجديد.' };
+    } else {
+      const days = Math.ceil((end - new Date()) / 864e5);
+      if (days <= 7 && MYROLE === 'owner') banner = { kind: 'warn', wa: renew, text: `تنبيه: ينتهي اشتراكك ${days === 1 ? 'خلال يوم واحد' : days === 2 ? 'خلال يومين' : `خلال ${days} أيام`}.` };
+    }
+    bootApp({ stableName: s.name, role: MYROLE, readonly: !active, banner, isAdmin, email: user.email });
+  }
+
+  AU.onAuthStateChanged(auth, async (user) => {
+    if (registering) return;
+    if (!user) { SID = null; showGate('gateLogin'); return; }
+    try { await enter(user); }
+    catch (e) { console.error(e); gateError('تعذّر تحميل البيانات: ' + errMsg(e)); }
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { hiddenAt = Date.now(); return; }
+    if (SID && hiddenAt && Date.now() - hiddenAt > 120000) reload(true);
+  });
+
+  const val = (id) => document.getElementById(id).value.trim();
+  const busy = (id, on, label) => { const b = document.getElementById(id); b.disabled = on; if (label) b.textContent = label; };
+
+  window.EnanAPI = {
+    errMsg,
+    reload: () => reload(false),
+
+    async login() {
+      busy('loginBtn', true, 'جارٍ الدخول…');
+      try { await AU.signInWithEmailAndPassword(auth, val('loginEmail'), document.getElementById('loginPass').value); }
+      catch (e) { gateFormError(errMsg(e)); }
+      finally { busy('loginBtn', false, 'دخول'); }
+    },
+
+    async resetPassword() {
+      const email = val('loginEmail');
+      if (!email) { gateFormError('اكتب بريدك الإلكتروني في الخانة أولًا'); return; }
+      try { await AU.sendPasswordResetEmail(auth, email); gateFormError('أرسلنا رابط إعادة تعيين كلمة المرور إلى بريدك ✓'); }
+      catch (e) { gateFormError(errMsg(e)); }
+    },
+
+    async register() {
+      const stableName = val('regStable'), name = val('regName'), phone = val('regPhone'), email = val('regEmail');
+      const pass = document.getElementById('regPass').value;
+      if (!stableName || !name || !phone || !email) { gateFormError('الرجاء تعبئة جميع الحقول'); return; }
+      registering = true; busy('regBtn', true, 'جارٍ إنشاء الحساب…');
+      try {
+        const cred = await AU.createUserWithEmailAndPassword(auth, email, pass);
+        const uid = cred.user.uid;
+        const sRef = FS.doc(FS.collection(db, 'stables'));
+        const b = FS.writeBatch(db);
+        b.set(sRef, { name: stableName, phone, ownerUid: uid, ownerEmail: email, status: 'pending', createdAt: FS.serverTimestamp() });
+        b.set(FS.doc(db, 'stables', sRef.id, 'members', uid), { role: 'owner', name, email });
+        b.set(FS.doc(db, 'users', uid), { stableId: sRef.id, name, email, createdAt: FS.serverTimestamp() });
+        await b.commit();
+        registering = false;
+        await enter(cred.user);
+      } catch (e) {
+        registering = false; console.error(e); gateFormError(errMsg(e));
+      } finally { busy('regBtn', false, 'إنشاء الحساب'); }
+    },
+
+    async logout() { await AU.signOut(auth); location.href = location.pathname; },
+
+    async saveSettings(name, phone) {
+      await FS.updateDoc(FS.doc(db, 'stables', SID), { name, phone });
+      window.STABLE_INFO.name = name; window.STABLE_INFO.phone = phone;
+      STABLE_NAME = name; document.title = name + ' | عِنان'; renderBrand();
+    },
+
+    async listStaff() {
+      const snap = await FS.getDocs(FS.collection(db, 'stables', SID, 'members'));
+      return snap.docs.map(d => ({ uid: d.id, ...d.data() })).sort((a, b) => (a.role === 'owner' ? -1 : 1));
+    },
+
+    // ينشئ حساب الموظف عبر نسخة ثانوية من التطبيق، فلا يخرج المالك من حسابه
+    async addStaff(name, email, pass) {
+      const sec = FA.initializeApp(firebaseConfig, 'staff-' + Date.now());
+      try {
+        const sAuth = AU.getAuth(sec);
+        const cred = await AU.createUserWithEmailAndPassword(sAuth, email, pass);
+        await FS.setDoc(FS.doc(FS.getFirestore(sec), 'users', cred.user.uid), { stableId: SID, name, email, createdAt: FS.serverTimestamp() });
+        await AU.signOut(sAuth);
+        await FS.setDoc(FS.doc(db, 'stables', SID, 'members', cred.user.uid), { role: 'staff', name, email });
+      } finally { await FA.deleteApp(sec).catch(() => {}); }
+    },
+
+    async removeStaff(uid) { await FS.deleteDoc(FS.doc(db, 'stables', SID, 'members', uid)); },
+  };
+}
+</script>
+</body>
+</html>
