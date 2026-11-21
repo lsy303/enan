@@ -6,6 +6,12 @@
 <title>لوحة المشرف | عِنان</title>
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/png" href="icons/favicon.png">
+<link rel="manifest" href="admin-manifest.json">
+<meta name="theme-color" content="#0F1F33">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="إدارة عِنان">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -42,6 +48,7 @@
   .empty{text-align:center; color:var(--muted); padding:40px 0;}
   .login{max-width:360px; margin:60px auto; background:#fff; border-radius:16px; padding:24px; display:none; flex-direction:column; gap:10px; box-shadow:0 2px 14px rgba(27,39,51,0.08);}
   .login input{padding:12px; border:1px solid #E3D9C3; border-radius:10px; font-family:inherit; font-size:15px;}
+  .login button.link{background:none; color:var(--muted); font-family:'Tajawal'; font-weight:500; font-size:14px; padding:4px; text-decoration:underline;}
   .login button{padding:12px; border:none; border-radius:10px; background:var(--navy); color:#fff; font-family:'Cairo'; font-weight:700; font-size:16px; cursor:pointer;}
   .msg{text-align:center; color:var(--muted); padding:30px 0;}
   .err{color:var(--red); font-size:14px; min-height:18px;}
@@ -61,6 +68,7 @@
   <input id="em" type="email" placeholder="البريد الإلكتروني" dir="ltr" required>
   <input id="pw" type="password" placeholder="كلمة المرور" dir="ltr" required>
   <button type="submit">دخول</button>
+  <button type="button" class="link" id="resetBtn">نسيت كلمة المرور؟</button>
   <div class="err" id="loginErr"></div>
 </form>
 
@@ -191,6 +199,13 @@ document.addEventListener('click', (e) => {
 });
 $('q').addEventListener('input', render);
 $('outBtn').onclick = async () => { await AU.signOut(auth); location.reload(); };
+$('resetBtn').onclick = async () => {
+  const em = $('em').value.trim(); const out = $('loginErr');
+  out.style.color = '';
+  if (!em) { out.textContent = 'اكتب بريدك الإلكتروني في الخانة أولًا'; return; }
+  try { await AU.sendPasswordResetEmail(auth, em); out.style.color = 'var(--green)'; out.textContent = 'إن كان البريد مسجّلًا، فستصلك رسالة لإعادة تعيين كلمة المرور ✓'; }
+  catch (err) { out.textContent = 'تعذّر الإرسال، تأكد من البريد الإلكتروني'; }
+};
 $('login').addEventListener('submit', async (e) => {
   e.preventDefault(); $('loginErr').textContent = '';
   try { await AU.signInWithEmailAndPassword(auth, $('em').value.trim(), $('pw').value); }

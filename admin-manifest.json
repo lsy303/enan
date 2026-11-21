@@ -1,0 +1,18 @@
+{
+  "id": "./admin.html",
+  "name": "لوحة إدارة عِنان",
+  "short_name": "إدارة عِنان",
+  "start_url": "./admin.html",
+  "scope": "./admin",
+  "display": "standalone",
+  "orientation": "portrait",
+  "dir": "rtl",
+  "lang": "ar",
+  "background_color": "#F5F1E8",
+  "theme_color": "#0F1F33",
+  "icons": [
+    { "src": "icons/enan-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/enan-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/enan-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
