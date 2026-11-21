@@ -215,6 +215,7 @@
 
   /* ── شريط الحالة والإشعارات ── */
   .status-banner{display:none; background:#FDECEC; color:#8E2423; border-bottom:1px solid #F5C2C2; padding:10px 16px; text-align:center; font-weight:700; font-size:15px;}
+  .gate-trial{background:rgba(201,161,90,0.14); border:1px solid #C9A15A; color:#E3C88A; border-radius:10px; padding:9px 12px; font-size:14.5px; font-weight:700; text-align:center;}
   .status-banner.warn{background:#FFF6E0; color:#7A5A12; border-color:#F0DDA8;}
   .status-banner.show{display:block;}
   .status-banner a{color:inherit; text-decoration:underline; margin-inline-start:6px;}
@@ -331,6 +332,7 @@
       <input id="regPhone" type="tel" placeholder="رقم الهاتف (واتساب)" dir="ltr" required>
       <input id="regEmail" type="email" placeholder="البريد الإلكتروني" autocomplete="username" dir="ltr" required>
       <input id="regPass" type="password" placeholder="كلمة المرور (6 أحرف على الأقل)" autocomplete="new-password" dir="ltr" minlength="6" required>
+      <div class="gate-trial">🎁 تجربة مجانية لمدة 14 يومًا تبدأ فور التسجيل</div>
       <button class="gate-btn" type="submit" id="regBtn">إنشاء الحساب</button>
       <button class="gate-link" type="button" onclick="showGate('gateLogin')">لديك حساب؟ سجّل الدخول</button>
     </form>
@@ -1169,7 +1171,7 @@ function setBanner(b){
   const el=document.getElementById('statusBanner');
   if(!b){ el.className='status-banner'; el.innerHTML=''; return; }
   el.className='status-banner show'+(b.kind==='warn'?' warn':'');
-  el.innerHTML=escapeHtml(b.text)+(b.wa?` <a href="${b.wa}" target="_blank" rel="noopener">تواصل للتجديد</a>`:'');
+  el.innerHTML=escapeHtml(b.text)+(b.wa?` <a href="${b.wa}" target="_blank" rel="noopener">${escapeHtml(b.linkText||'تواصل للتجديد')}</a>`:'');
 }
 
 function rerenderAllSections(){
@@ -1675,15 +1677,23 @@ if (!IS_DEMO) {
     await loadAll();
 
     let banner = null;
-    const renew = waLink(`السلام عليكم، أرغب في تجديد اشتراك إسطبل «${s.name}» في تطبيق عِنان.`);
+    const isTrial = s.plan === 'trial';
+    const renew = waLink(isTrial
+      ? `السلام عليكم، جرّبت تطبيق عِنان لإسطبل «${s.name}» وأرغب في الاشتراك.`
+      : `السلام عليكم، أرغب في تجديد اشتراك إسطبل «${s.name}» في تطبيق عِنان.`);
+    const linkText = isTrial ? 'اشترك الآن' : 'تواصل للتجديد';
+    const dayWord = (d) => d === 1 ? 'يوم واحد' : d === 2 ? 'يومان' : d <= 10 ? `${d} أيام` : `${d} يومًا`;
     if (!active) {
-      banner = { kind: 'err', wa: MYROLE === 'owner' ? renew : null,
+      banner = { kind: 'err', wa: MYROLE === 'owner' ? renew : null, linkText,
         text: s.status === 'suspended'
           ? 'الحساب موقوف مؤقتًا. يمكنك الاطلاع على بياناتك وتصديرها فقط.'
-          : 'انتهى الاشتراك. يمكنك الاطلاع على بياناتك وتصديرها فقط حتى التجديد.' };
+          : isTrial
+            ? 'انتهت الفترة التجريبية. بياناتك محفوظة، ويمكنك الاطلاع عليها وتصديرها حتى الاشتراك.'
+            : 'انتهى الاشتراك. يمكنك الاطلاع على بياناتك وتصديرها فقط حتى التجديد.' };
     } else {
       const days = Math.ceil((end - new Date()) / 864e5);
-      if (days <= 7 && MYROLE === 'owner') banner = { kind: 'warn', wa: renew, text: `تنبيه: ينتهي اشتراكك ${days === 1 ? 'خلال يوم واحد' : days === 2 ? 'خلال يومين' : `خلال ${days} أيام`}.` };
+      if (isTrial && MYROLE === 'owner') banner = { kind: 'warn', wa: renew, linkText, text: `أنت في الفترة التجريبية المجانية · المتبقي ${dayWord(days)}.` };
+      else if (days <= 7 && MYROLE === 'owner') banner = { kind: 'warn', wa: renew, linkText, text: `تنبيه: ينتهي اشتراكك ${days === 1 ? 'خلال يوم واحد' : days === 2 ? 'خلال يومين' : `خلال ${days} أيام`}.` };
     }
     bootApp({ stableName: s.name, role: MYROLE, readonly: !active, banner, isAdmin, email: user.email, country: s.country || 'BH' });
   }
@@ -1731,7 +1741,8 @@ if (!IS_DEMO) {
         const uid = cred.user.uid;
         const sRef = FS.doc(FS.collection(db, 'stables'));
         const b = FS.writeBatch(db);
-        b.set(sRef, { name: stableName, phone, country, ownerUid: uid, ownerEmail: email, status: 'pending', createdAt: FS.serverTimestamp() });
+        const trialEnd = FS.Timestamp.fromMillis(Date.now() + 14 * 864e5);
+        b.set(sRef, { name: stableName, phone, country, ownerUid: uid, ownerEmail: email, status: 'active', plan: 'trial', subscriptionEnd: trialEnd, createdAt: FS.serverTimestamp() });
         b.set(FS.doc(db, 'stables', sRef.id, 'members', uid), { role: 'owner', name, email });
         b.set(FS.doc(db, 'users', uid), { stableId: sRef.id, name, email, createdAt: FS.serverTimestamp() });
         await b.commit();

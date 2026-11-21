@@ -32,7 +32,7 @@
   .meta{font-size:13.5px; color:var(--muted); margin-top:3px; line-height:1.7;}
   .meta a{color:var(--green); font-weight:700; text-decoration:none;}
   .pill{font-size:12.5px; font-weight:700; padding:3px 10px; border-radius:20px; white-space:nowrap;}
-  .pill.pending{background:#FFF1D6; color:var(--amber);} .pill.active{background:#E2F4EA; color:var(--green);}
+  .pill.pending{background:#FFF1D6; color:var(--amber);} .pill.trial{background:#E6EEF9; color:#2D5BA8;} .pill.active{background:#E2F4EA; color:var(--green);}
   .pill.expired{background:#FDECEC; color:var(--red);} .pill.suspended{background:#EEE; color:#555;}
   .actions{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; padding-top:10px; border-top:1px dashed #E8E0CC;}
   .actions button{border:none; border-radius:8px; padding:8px 12px; font-family:inherit; font-weight:700; font-size:14px; cursor:pointer; background:var(--paper); color:var(--ink);}
@@ -98,14 +98,14 @@ const DAY = 864e5;
 const COUNTRY = { BH:'🇧🇭 البحرين', SA:'🇸🇦 السعودية', AE:'🇦🇪 الإمارات', KW:'🇰🇼 الكويت', QA:'🇶🇦 قطر', OM:'🇴🇲 عُمان', JO:'🇯🇴 الأردن', EG:'🇪🇬 مصر' };
 
 let STABLES = [], filter = 'all';
-const LABEL = { all: 'الكل', pending: 'بانتظار التفعيل', active: 'فعّال', expiring: 'ينتهي قريبًا', expired: 'منتهٍ', suspended: 'موقوف' };
+const LABEL = { all: 'الكل', trial: 'تجربة', pending: 'بانتظار التفعيل', active: 'فعّال', expiring: 'ينتهي قريبًا', expired: 'منتهٍ', suspended: 'موقوف' };
 
 function stateOf(s) {
   if (s.status === 'pending') return 'pending';
   if (s.status === 'suspended') return 'suspended';
   const end = s.subscriptionEnd?.toDate?.();
   if (!end || end <= new Date()) return 'expired';
-  return 'active';
+  return s.plan === 'trial' ? 'trial' : 'active';
 }
 function daysLeft(s) { const end = s.subscriptionEnd?.toDate?.(); return end ? Math.ceil((end - new Date()) / DAY) : null; }
 
@@ -117,8 +117,8 @@ async function load() {
 }
 
 function render() {
-  const counts = { all: STABLES.length, pending: 0, active: 0, expiring: 0, expired: 0, suspended: 0 };
-  STABLES.forEach(s => { const st = stateOf(s); counts[st]++; if (st === 'active' && daysLeft(s) <= 14) counts.expiring++; });
+  const counts = { all: STABLES.length, trial: 0, pending: 0, active: 0, expiring: 0, expired: 0, suspended: 0 };
+  STABLES.forEach(s => { const st = stateOf(s); counts[st]++; if ((st === 'active' || st === 'trial') && daysLeft(s) <= 14) counts.expiring++; });
   $('stats').innerHTML = [['بانتظار التفعيل', counts.pending], ['فعّال', counts.active], ['ينتهي خلال 14 يومًا', counts.expiring], ['منتهٍ أو موقوف', counts.expired + counts.suspended]]
     .map(([l, v]) => `<div class="stat"><div class="l">${l}</div><div class="v">${v}</div></div>`).join('');
   $('filters').innerHTML = Object.keys(LABEL).map(k => `<button class="${k === filter ? 'on' : ''}" data-f="${k}">${LABEL[k]} (${counts[k]})</button>`).join('');
@@ -126,7 +126,7 @@ function render() {
   const q = $('q').value.trim().toLowerCase();
   const rows = STABLES.filter(s => {
     const st = stateOf(s);
-    if (filter === 'expiring') { if (!(st === 'active' && daysLeft(s) <= 14)) return false; }
+    if (filter === 'expiring') { if (!((st === 'active' || st === 'trial') && daysLeft(s) <= 14)) return false; }
     else if (filter !== 'all' && st !== filter) return false;
     return !q || [s.name, s.ownerEmail, s.phone].some(v => String(v || '').toLowerCase().includes(q));
   });
@@ -136,7 +136,7 @@ function render() {
     const st = stateOf(s), dl = daysLeft(s), end = s.subscriptionEnd?.toDate?.();
     const phone = String(s.phone || '').replace(/[^\d]/g, '').replace(/^0+/, '');
     const wa = phone ? (phone.length <= 8 ? '973' + phone : phone) : '';
-    const sub = st === 'active' ? `ساري حتى ${fmt(end)} · متبقٍّ ${dl} يومًا` : st === 'expired' && end ? `انتهى في ${fmt(end)}` : '';
+    const sub = (st === 'active' || st === 'trial') ? `ساري حتى ${fmt(end)} · متبقٍّ ${dl} يومًا` : st === 'expired' && end ? `انتهى في ${fmt(end)}` : '';
     return `<div class="card">
       <div class="row">
         <div>
@@ -178,7 +178,7 @@ async function act(a, id) {
       toast('تم إيقاف الحساب');
     } else {
       if (!confirm(`تفعيل «${s.name}» حتى ${fmt(end)}؟`)) return;
-      await FS.updateDoc(FS.doc(db, 'stables', id), { status: 'active', subscriptionEnd: FS.Timestamp.fromDate(end) });
+      await FS.updateDoc(FS.doc(db, 'stables', id), { status: 'active', plan: { trial: 'trial', month: 'month', year: 'year', date: 'custom' }[a], subscriptionEnd: FS.Timestamp.fromDate(end) });
       toast('تم التفعيل حتى ' + fmt(end));
     }
     await load();

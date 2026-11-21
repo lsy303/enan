@@ -50,16 +50,21 @@ await t('المالك يعدّل اسم إسطبله',                assertSucc
 await t('أنت (المشرف) تمدد الاشتراك',             assertSucceeds(updateDoc(doc(as('me'), 'stables/B'), { subscriptionEnd: future })));
 await env.withSecurityRulesDisabled(async (c) => updateDoc(doc(c.firestore(), 'stables/B'), { subscriptionEnd: past }));
 
-// ── التسجيل الجديد ──
+// ── التسجيل الجديد: تجربة 14 يومًا تلقائيًا ──
+const trial14 = () => Timestamp.fromMillis(Date.now() + 14 * 864e5);
 {
   const b = writeBatch(as('newUser'));
-  b.set(doc(as('newUser'), 'stables/N'), { name: 'جديد', ownerUid: 'newUser', status: 'pending' });
+  b.set(doc(as('newUser'), 'stables/N'), { name: 'جديد', ownerUid: 'newUser', status: 'active', plan: 'trial', subscriptionEnd: trial14() });
   b.set(doc(as('newUser'), 'stables/N/members/newUser'), { role: 'owner' });
-  await t('تسجيل جديد ينشئ إسطبلاً بانتظار التفعيل', assertSucceeds(b.commit()));
+  await t('تسجيل جديد يبدأ بتجربة 14 يومًا',         assertSucceeds(b.commit()));
 }
-await t('التسجيل لا يُنشئ إسطبلاً مفعّلاً',        assertFails(setDoc(doc(as('hacker'), 'stables/H'), { name: 'h', ownerUid: 'hacker', status: 'active' })));
+await t('الإسطبل التجريبي يضيف بيانات',            assertSucceeds(setDoc(doc(as('newUser'), 'stables/N/trainees/x'), { name: 'x' })));
+await t('التسجيل لا يمنح نفسه أكثر من 15 يومًا',   assertFails(setDoc(doc(as('hacker'), 'stables/H'), { name: 'h', ownerUid: 'hacker', status: 'active', plan: 'trial', subscriptionEnd: future })));
+await t('التسجيل لا يُنشئ اشتراكًا مدفوعًا',        assertFails(setDoc(doc(as('hacker'), 'stables/H'), { name: 'h', ownerUid: 'hacker', status: 'active', plan: 'year', subscriptionEnd: trial14() })));
+await t('التسجيل لا يُنشئ إسطبلاً بلا تاريخ انتهاء', assertFails(setDoc(doc(as('hacker'), 'stables/H'), { name: 'h', ownerUid: 'hacker', status: 'active', plan: 'trial' })));
+await t('المالك التجريبي لا يمدد تجربته',          assertFails(updateDoc(doc(as('newUser'), 'stables/N'), { subscriptionEnd: future })));
+await t('المالك التجريبي لا يغيّر خطته',            assertFails(updateDoc(doc(as('newUser'), 'stables/N'), { plan: 'year' })));
 await t('لا يضيف نفسه مالكاً لإسطبل غيره',        assertFails(setDoc(doc(as('hacker'), 'stables/A/members/hacker'), { role: 'owner' })));
-await t('الإسطبل المعلّق لا يكتب بيانات',          assertFails(setDoc(doc(as('newUser'), 'stables/N/trainees/x'), { name: 'x' })));
 
 // ── انتهاء الاشتراك ──
 await t('المنتهي يقرأ بياناته (لا يفقدها)',       assertSucceeds(getDoc(doc(as('ownerB'), 'stables/B/trainees/t1'))));
